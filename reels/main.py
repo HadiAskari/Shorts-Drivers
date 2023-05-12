@@ -286,7 +286,7 @@ if __name__ == '__main__':
 
         elif args.i == "Control":
             print("Control Intervention")
-            intervention_data = Control(driver, args.q, args.i)
+            intervention_data = Control()
             pd.DataFrame(intervention_data).to_csv(f'intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
         
