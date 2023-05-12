@@ -235,23 +235,17 @@ def login_controller(driver: ReelsDriver, name):
     with open('credentials.json') as f:
         json_file = json.load(f)
         accounts_list=json_file[name]
-    driver.login('{}'.format(accounts_list[0]), '{}'.format(accounts_list[1]))
+    driver.login(accounts_list[0], accounts_list[1])
 
 
-        
 if __name__ == '__main__':
         args = parse_args()
-
-
-        driver = ReelsDriver(profile_dir='profiles/%s' % args.n)
+        driver = ReelsDriver(use_virtual_display=False)
 
         login_controller(driver, args.n)
         
-
         driver.goto_shorts()
 
-        input("Continue?")
-                
         print("Training Phase 1...", util.timestamp())
         training_phase_1(driver, args.q)
 

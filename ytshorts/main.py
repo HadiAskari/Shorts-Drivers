@@ -24,14 +24,8 @@ def parse_args():
     args = ArgumentParser()
     args.add_argument('--q', required=True)
     args.add_argument('--i', help='Intervention Type', required=True)
-    #args.add_argument('--d', help='Device Index', required=False, type=int)
     args.add_argument('--n', help='Account Name Type', required=True)
     return args.parse_args()
-
-
-
-
-#write code for training phase 1 as well
 
 def training_phase_1(driver: YTShortDriver, query):
     with open('accounts.json') as f:
@@ -40,9 +34,6 @@ def training_phase_1(driver: YTShortDriver, query):
         for url in accounts_list:
             sleep(2)
             driver.subscribe(url)
-
-
-
 
 def training_phase_2(driver: YTShortDriver, query):
 
@@ -243,36 +234,23 @@ def Not_Interested_Unfollow(driver: YTShortDriver,query, intervention):
 
     driver.unfollow_all_accounts()
 
-
-
     return intervention_data
 
 def Control():
     pass
         
-
-    
-profile = "hadiaskari23"
+def login_controller(driver: YTShortDriver, name):
+    with open('credentials.json') as f:
+        json_file = json.load(f)
+        accounts_list=json_file[name]
+    driver.login(accounts_list[0], accounts_list[1])
 
 if __name__ == '__main__':
         args = parse_args()
-        driver = YTShortDriver(use_virtual_display=False, profile_dir='profiles/%s' % profile)
-        
-        # print("Launching emulator...")
-        # device = emulate_new_device(credentials.name)
-        #device = get_connected_devices()[args.d]
-
-
-    # try:
-        
-        #configure_keyboard(device)
+        driver = YTShortDriver(use_virtual_display=False)
 
         driver.goto_homepage()
-
-        # wait for user setup
-        input("Start?")
-
-        
+       
         print("Training Phase 1...", util.timestamp())
         training_phase_1(driver, args.q)
 
