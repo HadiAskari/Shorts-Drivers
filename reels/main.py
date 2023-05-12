@@ -230,6 +230,14 @@ def Not_Interested_Unfollow(driver: ReelsDriver,query, intervention):
 
 def Control():
     pass
+
+def login_controller(driver: ReelsDriver, name):
+    with open('credentials.json') as f:
+        json_file = json.load(f)
+        accounts_list=json_file[name]
+    driver.login('{}'.format(accounts_list[0]), '{}'.format(accounts_list[1]))
+
+
         
 if __name__ == '__main__':
         args = parse_args()
@@ -237,7 +245,8 @@ if __name__ == '__main__':
 
         driver = ReelsDriver(profile_dir='profiles/%s' % args.n)
 
-        driver.login('', '')
+        login_controller(driver, args.n)
+        
 
         driver.goto_shorts()
 
