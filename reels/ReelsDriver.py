@@ -27,7 +27,7 @@ class ReelsDriver:
             raise Exception("Invalid browser", browser)
 
         self.driver.set_page_load_timeout(30)
-        self.driver.implicitly_wait(2)
+        self.driver.implicitly_wait(10)
         self.verbose = verbose
 
     def close(self):
