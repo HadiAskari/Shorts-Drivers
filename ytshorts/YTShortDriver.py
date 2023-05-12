@@ -10,6 +10,7 @@ from helpers import Short, ShortUnavailableException
 from pyvirtualdisplay import Display
 from urllib.parse import quote_plus
 import undetected_chromedriver as uc
+from seleniumbase import SB
 
 class YTShortDriver:
 
@@ -141,8 +142,28 @@ class YTShortDriver:
         # click button
         subscription.click()
 
+    def login(self, username, password):
+        # go to the homepage first
+        self.goto_homepage()
 
+        # click on signin
+        self.driver.find_element(By.XPATH, '//a[@aria-label="Sign in"]').click()
 
+        # type in email
+        self.driver.find_element(By.XPATH, '//input[@type="email"]').send_keys(username)
+        sleep(2)
+
+        # click on next
+        self.driver.find_element(By.XPATH, '//span[text()="Next"]').click()
+        sleep(2)
+
+        # type in password
+        self.driver.find_element(By.XPATH, '//input[@type="password"]').send_keys(password)
+        sleep(2)
+
+        # click on next
+        self.driver.find_element(By.XPATH, '//span[text()="Next"]').click()
+        sleep(2)
 
     def goto_homepage(self):
         self.driver.get('https://www.youtube.com')
@@ -200,15 +221,6 @@ class YTShortDriver:
             options.add_argument('--headless')
 
         driver = uc.Chrome(options=options, version_main=111)
-
-        # stealth(driver,
-        #     languages=["en-US", "en"],
-        #     vendor="Google Inc.",
-        #     platform="Win32",
-        #     webgl_vendor="Intel Inc.",
-        #     renderer="Intel Iris OpenGL Engine",
-        #     fix_hairline=True,
-        # )
 
         return driver
 
