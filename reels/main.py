@@ -237,6 +237,8 @@ if __name__ == '__main__':
 
         driver = ReelsDriver(profile_dir='profiles/%s' % args.n)
 
+        driver.login('', '')
+
         driver.goto_shorts()
 
         input("Continue?")

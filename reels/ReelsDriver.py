@@ -124,7 +124,14 @@ class ReelsDriver:
 
     def save_screenshot(self, filename):
         return self.driver.save_screenshot(filename)
-
+    
+    def login(self, username, password):
+        self.driver.get('https://www.instagram.com/accounts/login/')
+        self.driver.find_element(By.XPATH, '//input[@name="username"]').send_keys(username)
+        self.driver.find_element(By.XPATH, '//input[@type="password"]').send_keys(password)
+        self.driver.find_element(By.XPATH, '//button[@type="submit"]').click()
+        sleep(10)
+        
     ## helper methods
     def __log(self, message):
         if self.verbose:
