@@ -6,7 +6,7 @@ from datetime import datetime
 from time import sleep
 import classifier
 import json
-
+import os
 
 with open('keywords.json') as f:
     query_kw = json.load(f)
@@ -92,3 +92,9 @@ def classify(query, text):
         if classifier.classify(kw, text):
             return True
     return False
+
+def makedirs():
+    dirs = ['training_phase_2', 'testing_phase_1', 'intervention', 'testing_phase_2']
+    for dir in dirs:
+        if not os.path.exists(dir):
+            os.mkdir(dir)

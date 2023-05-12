@@ -27,7 +27,7 @@ class ReelsDriver:
             raise Exception("Invalid browser", browser)
 
         self.driver.set_page_load_timeout(30)
-        self.driver.implicitly_wait(10)
+        self.driver.implicitly_wait(2)
         self.verbose = verbose
 
     def close(self):
@@ -77,6 +77,9 @@ class ReelsDriver:
 
     def goto_shorts(self):
         self.goto_homepage()
+        # regain focus
+        self.driver.find_element(By.TAG_NAME, 'body').click()
+
     
     def subscribe(self, url):
         self.driver.get(url)
@@ -85,7 +88,8 @@ class ReelsDriver:
         #     EC.presence_of_element_located(self.driver.find_element(By.XPATH, '//div[text()="Follow"]'))
         # )
 
-        self.driver.find_element(By.XPATH, '//div[text()="Follow"]').click()  
+        try: self.driver.find_element(By.XPATH, '//div[text()="Follow"]').click()
+        except: pass
 
         #//button[text()="Follow"
 
@@ -129,6 +133,7 @@ class ReelsDriver:
         self.driver.get('https://www.instagram.com/accounts/login/')
         self.driver.find_element(By.XPATH, '//input[@name="username"]').send_keys(username)
         self.driver.find_element(By.XPATH, '//input[@type="password"]').send_keys(password)
+        sleep(5)
         self.driver.find_element(By.XPATH, '//button[@type="submit"]').click()
         sleep(10)
         

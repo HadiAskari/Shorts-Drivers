@@ -17,7 +17,8 @@ PARAMETERS = dict(
     training_phase_n=10,
     training_phase_sleep=30,
     testing_phase_n=1000,
-    intervention_phase_n=10
+    intervention_phase_n=10,
+    upper_bound=1000
 )
 
 def parse_args():
@@ -45,7 +46,7 @@ def training_phase_2(driver: YTShortDriver, query):
     # start training
     training_phase_2_data = []
 
-    for iter in tqdm(range(1000)):
+    for iter in tqdm(range(PARAMETERS['upper_bound'])):
 
         # break if exit satisfied
         if count > PARAMETERS["training_phase_n"]:
@@ -112,7 +113,7 @@ def Not_Interested(driver: YTShortDriver,query, intervention):
     count = 0
 
     # for 1000 videos
-    for iter in tqdm(range(1000)):
+    for iter in tqdm(range(PARAMETERS['upper_bound'])):
 
         # break if success
         if count > PARAMETERS["intervention_phase_n"]:
@@ -169,7 +170,7 @@ def Unfollow_Not_Interested(driver: YTShortDriver,query, intervention):
     count = 0
 
     # for 1000 videos
-    for iter in tqdm(range(1000)):
+    for iter in tqdm(range(PARAMETERS['upper_bound'])):
 
         # break if success
         if count > PARAMETERS["intervention_phase_n"]:
@@ -209,7 +210,7 @@ def Not_Interested_Unfollow(driver: YTShortDriver,query, intervention):
     count = 0
 
     # for 1000 videos
-    for iter in tqdm(range(1000)):
+    for iter in tqdm(range(PARAMETERS['upper_bound'])):
 
         # break if success
         if count > PARAMETERS["intervention_phase_n"]:
@@ -243,11 +244,17 @@ def login_controller(driver: YTShortDriver, name):
     with open('credentials.json') as f:
         json_file = json.load(f)
         accounts_list=json_file[name]
-    driver.login(accounts_list[0], accounts_list[1])
+
+    try: driver.login(accounts_list[0], accounts_list[1])
+    except: pass
 
 if __name__ == '__main__':
+        
+        util.makedirs()
         args = parse_args()
         driver = YTShortDriver(use_virtual_display=False)
+
+        login_controller(driver, args.n)
 
         driver.goto_homepage()
        
