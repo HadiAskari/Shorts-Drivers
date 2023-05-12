@@ -77,6 +77,25 @@ class ReelsDriver:
 
     def goto_shorts(self):
         self.goto_homepage()
+    
+    def subscribe(self, url):
+        self.driver.get(url)
+
+        # subscription = WebDriverWait(self.driver, 10).until(
+        #     EC.presence_of_element_located(self.driver.find_element(By.XPATH, '//div[text()="Follow"]'))
+        # )
+
+        self.driver.find_element(By.XPATH, '//div[text()="Follow"]').click()  
+
+        #//button[text()="Follow"
+
+        # get all subscription buttons
+        #subscriptions = self.driver.find_elements(By.TAG_NAME, 'ytd-subscribe-button-renderer')
+        # for subscription in subscriptions:
+        # click button
+
+        #subscription.click()
+
 
     def unfollow_all_accounts(self):
         self.goto_homepage()

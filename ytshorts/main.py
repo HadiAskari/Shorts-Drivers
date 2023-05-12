@@ -24,30 +24,31 @@ def parse_args():
     args = ArgumentParser()
     args.add_argument('--q', required=True)
     args.add_argument('--i', help='Intervention Type', required=True)
-    args.add_argument('--d', help='Device Index', required=False, type=int)
+    #args.add_argument('--d', help='Device Index', required=False, type=int)
     args.add_argument('--n', help='Account Name Type', required=True)
     return args.parse_args()
 
 
-def restart_app(device):
-    #need to change
-    device.kill_app('com.google.android.youtube')
-    device.launch_app('com.google.android.youtube')
-    sleep(20)
-    util.tap_on(device, attrs={'content-desc': 'Shorts', 'class': "android.widget.Button"})
 
 
 #write code for training phase 1 as well
 
-def training_phase_1(device,query):
-    pass
+def training_phase_1(driver: YTShortDriver, query):
+    with open('accounts.json') as f:
+        json_file = json.load(f)
+        accounts_list=json_file[query]
+        for url in accounts_list:
+            sleep(2)
+            driver.subscribe(url)
 
 
 
 
-def training_phase_2(device, query):
-    #need to change
+def training_phase_2(driver: YTShortDriver, query):
 
+    driver.goto_shorts()
+
+    sleep(2)
 
     count = 0
     # start training
@@ -55,98 +56,66 @@ def training_phase_2(device, query):
 
     for iter in tqdm(range(1000)):
 
-        # restart every 20 videos to refresh app state
-        if iter % 20 == 0:
-            restart_app(device)
-
         # break if exit satisfied
         if count > PARAMETERS["training_phase_n"]:
             break
 
-        # check for any flow disruptions first
-        #util.check_disruptions(device)
+        # get current short
+        short = driver.get_current_short()
 
-        # grab xml
-        xml = device.get_xml()
-        text_elems = device.find_elements({'content-desc': re.compile('.+')}, xml)
-        text_elems += device.find_elements({'text': re.compile('.+')}, xml)
+        #print(short.metadata['description'])
 
-        # build row
-        row = {}
-        for column_id, elem in enumerate(text_elems):
-            key = elem['resource-id']
-            if key.strip() == '':
-                key = 'col_%s' % column_id
-            text = elem['content-desc']
-            if text.strip() == '':
-                text = elem['text']
-            row[key] = text
-            if elem['resource-id'] == 'com.google.android.youtube:id/reel_main_title' and classify(query, text):
-                count += 1
-                if not row.get('liked', False):
-                    row['liked'] = True
-                    # click on like and watch for longer
-                    util.like_bookmark_subscribe(device)
-                    sleep(PARAMETERS["training_phase_sleep"])
+        if classify(query, short.metadata['description']):
+            count += 1
+            short.metadata['liked'] = True
+            # click on like and watch for longer
+            sleep(PARAMETERS["training_phase_sleep"])
+            driver.positive_signal()
+
     
         # append to training data
-        training_phase_2_data.append(row)
+        training_phase_2_data.append(short.metadata)
 
         # swipe to next video
-        util.swipe_up(device)
+        driver.next_short()
     
     return training_phase_2_data
 
 
-def testing(device):
-    #need to change
+def testing(driver: YTShortDriver):
+   
+        # open shorts page
+    driver.goto_shorts()
 
-
+    sleep(2)
 
     # start testing
     testing_phase1_data = []
     count = 0
     for iter in tqdm(range(PARAMETERS["testing_phase_n"])):
 
-        # restart every 50 videos to refresh app state
-        if iter % 20 == 0:
-            restart_app(device)
+        # grab current short
+        short = driver.get_current_short()
 
-        # check for any flow disruptions first
-        #util.check_disruptions(device)
-
-        # grab xml
-        xml = device.get_xml()
-        text_elems = device.find_elements({'content-desc': re.compile('.+')}, xml)
-        text_elems += device.find_elements({'text': re.compile('.+')}, xml)
-
-        # build row
-        row = {}
-        for column_id, elem in enumerate(text_elems):
-            key = elem['resource-id']
-            if key.strip() == '':
-                key = 'col_%s' % column_id
-            text = elem['content-desc']
-            if text.strip() == '':
-                text = elem['text']
-            row[key] = text
+        #print(short.metadata['description'])
 
         # append to training data
-        testing_phase1_data.append(row)
+        testing_phase1_data.append(short.metadata)
         count += 1
         
-        util.swipe_up(device)
+        # get next short
+        driver.next_short()
 
     return testing_phase1_data
 
+  
 
-def Not_Interested(device,query, intervention):
+
+def Not_Interested(driver: YTShortDriver,query, intervention):
     #need to change
+    driver.goto_shorts()
 
-
-
-    if intervention == "Not_Interested":
-        pass 
+    sleep(2)
     
     intervention_data = []
     count = 0
@@ -154,291 +123,127 @@ def Not_Interested(device,query, intervention):
     # for 1000 videos
     for iter in tqdm(range(1000)):
 
-        # restart every 50 videos to refresh app state
-        if iter % 20 == 0:
-            restart_app(device)
+        # break if success
+        if count > PARAMETERS["intervention_phase_n"]:
+            print('breaking',count)
+            break
+        
+        # get current short
+        short = driver.get_current_short()
+
+        
+        if classify(query, short.metadata['description']):
+            count += 1
+            short.metadata['Intervened'] = True
+            # click on like and watch for longer
+            driver.negative_signal()
+
+        training_phase_2_data.append(short.metadata)
+
+        # swipe to next video
+        driver.next_short()
+
+    return intervention_data
+
+def Unfollow(driver: YTShortDriver,query, intervention):
+    #need to change
+    driver.goto_shorts()
+
+    sleep(2)
+    
+    intervention_data = []
+  
+    driver.unfollow_all_accounts()
+
+    return intervention_data
+
+def Unfollow_Not_Interested(driver: YTShortDriver,query, intervention):
+    #need to change
+
+
+    sleep(2)
+ 
+    intervention_data = []
+
+    driver.unfollow_all_accounts()
+
+
+    #need to change
+    driver.goto_shorts()
+
+
+    sleep(2)
+    
+    intervention_data = []
+    count = 0
+
+    # for 1000 videos
+    for iter in tqdm(range(1000)):
 
         # break if success
         if count > PARAMETERS["intervention_phase_n"]:
             print('breaking',count)
             break
-    
-        # check for any flow disruptions first
-        #util.check_disruptions(device)
         
-        # watch short for a certain time
-        sleep(1)
+        # get current short
+        short = driver.get_current_short()
 
         
+        if classify(query, short.metadata['description']):
+            count += 1
+            short.metadata['Intervened'] = True
+            # click on like and watch for longer
+            driver.negative_signal()
 
-        xml = device.get_xml()
-        text_elems = device.find_elements({'content-desc': re.compile('.+')}, xml)
-        text_elems += device.find_elements({'text': re.compile('.+')}, xml)
+        training_phase_2_data.append(short.metadata)
 
-        # build row
-        row = {}
-        for column_id, elem in enumerate(text_elems):
-            key = elem['resource-id']
-            if key.strip() == '':
-                key = 'col_%s' % column_id
-            text = elem['content-desc']
-            if text.strip() == '':
-                text = elem['text']
-            if text == '':
-                continue
-            row[key] = text
+        # swipe to next video
+        driver.next_short()
+
+
             
-            if elem['resource-id'] == 'com.google.android.youtube:id/reel_main_title' and classify(query, text):
-                count += 1
-                row['Intervened'] = True
-                row['Intervention'] = intervention
-                print(text)
-
-                #longtap
-                device.longtap()
-                sleep(1)
-
-                # click on Not intereseted
-                try: util.tap_on(device, {'text': "Don't recommend this channel"})
-                except: util.swipe_up(device)
-
-        intervention_data.append(row)
-
-        # swipe to next video only if did not intervene here
-        if not row.get('Intervened'):
-            util.swipe_up(device)
-        
 
     return intervention_data
+        
 
-def Unfollow(device,query, intervention):
+def Not_Interested_Unfollow(driver: YTShortDriver,query, intervention):
     #need to change
 
+    driver.goto_shorts()
 
 
-    if intervention=="Unfollow":
-        pass 
+    sleep(2)
     
-    restart_app(device)
-
     intervention_data = []
+    count = 0
 
-    sleep(10)
+    # for 1000 videos
+    for iter in tqdm(range(1000)):
 
-    # press on hide to hide content
-    try: util.tap_on(device, attrs={'content-desc': 'Subscriptions'})
-    except: pass
-
-    util.tap_on(device, {'resource-id':"com.google.android.youtube:id/channels_button"})
-
-    xml = device.get_xml()
-    elems = device.find_elements({'class':"android.view.ViewGroup", "clickable":"true"}, xml)
-    for n in range(1, len(elems), 2):
-        # click bell icon
-        util.tap_on_nth(device, {'class':"android.view.ViewGroup", "clickable":"true"}, n, xml)
-        sleep(1)
-        # click unsubscribe
-        device.tap((300, 1500))
-        sleep(1)
-
-    return intervention_data
-
-def Unfollow_Not_Interested(device,query, intervention):
-    #need to change
-
-
-
-    try:
-        if intervention=="Unfollow_Not_Interested":
-            pass 
-            
-        restart_app(device)
-
-        intervention_data = []
-
-        # press on hide to hide content
-        try: util.tap_on(device, attrs={'content-desc': 'Subscriptions'})
-        except: pass
-
-        try: util.tap_on(device, {'resource-id':"com.google.android.youtube:id/channels_button"})
-        except: pass
-
-        xml = device.get_xml()
-        elems = device.find_elements({'class':"android.view.ViewGroup", "clickable":"true"}, xml)
-        for n in range(1, len(elems), 2):
-            # click bell icon
-            util.tap_on_nth(device, {'class':"android.view.ViewGroup", "clickable":"true"}, n, xml)
-            sleep(1)
-            # click unsubscribe
-            device.tap((300, 1500))
-            sleep(1)
-
-
-        intervention_data = []
-        count = 0
-
-        # for 1000 videos
-        for iter in tqdm(range(1000)):
-
-            # restart every 50 videos to refresh app state
-            if iter % 20 == 0:
-                restart_app(device)
-                util.tap_on(device, attrs={'content-desc': 'Shorts', 'class': "android.widget.Button"})
-
-            # break if success
-            if count > PARAMETERS["intervention_phase_n"]:
-                print('breaking',count)
-                break
+        # break if success
+        if count > PARAMETERS["intervention_phase_n"]:
+            print('breaking',count)
+            break
         
-            # check for any flow disruptions first
-            #util.check_disruptions(device)
-            
-            # watch short for a certain time
-            sleep(1)
+        # get current short
+        short = driver.get_current_short()
 
-            
-
-            xml = device.get_xml()
-            text_elems = device.find_elements({'content-desc': re.compile('.+')}, xml)
-            text_elems += device.find_elements({'text': re.compile('.+')}, xml)
-
-            # build row
-            row = {}
-            for column_id, elem in enumerate(text_elems):
-                key = elem['resource-id']
-                if key.strip() == '':
-                    key = 'col_%s' % column_id
-                text = elem['content-desc']
-                if text.strip() == '':
-                    text = elem['text']
-                if text == '':
-                    continue
-                row[key] = text
-                
-                if elem['resource-id'] == 'com.google.android.youtube:id/reel_main_title' and classify(query, text):
-                    count += 1
-                    row['Intervened'] = True
-                    row['Intervention'] = intervention
-                    print(text)
-
-                    #longtap
-                    device.longtap()
-                    sleep(1)
-
-                    # click on Not intereseted
-                    try: util.tap_on(device, {'text': "Don't recommend this channel"})
-                    except: util.swipe_up(device)
-
-            intervention_data.append(row)
-
-            # swipe to next video only if did not intervene here
-            if not row.get('Intervened'):
-                util.swipe_up(device)
-            
-
-        return intervention_data
         
+        if classify(query, short.metadata['description']):
+            count += 1
+            short.metadata['Intervened'] = True
+            # click on like and watch for longer
+            driver.negative_signal()
 
-    except Exception as e:
-        if e == "'NoneType' object is not subscriptable":
-            restart_app(device)
+        training_phase_2_data.append(short.metadata)
 
-    return intervention_data
-
-def Not_Interested_Unfollow(device,query, intervention):
-    #need to change
+        # swipe to next video
+        driver.next_short()
 
 
+    driver.unfollow_all_accounts()
 
-    try:
-        if intervention=="Not_Interested_Unfollow":
-            pass 
-        
-        restart_app(device)
-        intervention_data = []
-        count = 0
 
-        # for 1000 videos
-        for iter in tqdm(range(1000)):
-
-            # restart every 50 videos to refresh app state
-            if iter % 20 == 0:
-                restart_app(device)
-                util.tap_on(device, attrs={'content-desc': 'Shorts', 'class': "android.widget.Button"})
-
-            # break if success
-            if count > PARAMETERS["intervention_phase_n"]:
-                print('breaking',count)
-                break
-        
-            # check for any flow disruptions first
-            #util.check_disruptions(device)
-            
-            # watch short for a certain time
-            sleep(1)
-
-            
-
-            xml = device.get_xml()
-            text_elems = device.find_elements({'content-desc': re.compile('.+')}, xml)
-            text_elems += device.find_elements({'text': re.compile('.+')}, xml)
-
-            # build row
-            row = {}
-            for column_id, elem in enumerate(text_elems):
-                key = elem['resource-id']
-                if key.strip() == '':
-                    key = 'col_%s' % column_id
-                text = elem['content-desc']
-                if text.strip() == '':
-                    text = elem['text']
-                if text == '':
-                    continue
-                row[key] = text
-                
-                if elem['resource-id'] == 'com.google.android.youtube:id/reel_main_title' and classify(query, text):
-                    count += 1
-                    row['Intervened'] = True
-                    row['Intervention'] = intervention
-                    print(text)
-
-                    #longtap
-                    device.longtap()
-                    sleep(1)
-
-                    # click on Not intereseted
-                    try: util.tap_on(device, {'text': "Don't recommend this channel"})
-                    except: util.swipe_up(device)
-
-            intervention_data.append(row)
-
-            # swipe to next video only if did not intervene here
-            if not row.get('Intervened'):
-                util.swipe_up(device)
-
-                   
-        restart_app(device)
-
-        # press on hide to hide content
-        try: util.tap_on(device, attrs={'content-desc': 'Subscriptions'})
-        except: pass
-
-        try: util.tap_on(device, {'resource-id':"com.google.android.youtube:id/channels_button"})
-        except: pass
-
-        xml = device.get_xml()
-        elems = device.find_elements({'class':"android.view.ViewGroup", "clickable":"true"}, xml)
-        for n in range(1, len(elems), 2):
-            # click bell icon
-            util.tap_on_nth(device, {'class':"android.view.ViewGroup", "clickable":"true"}, n, xml)
-            sleep(1)
-            # click unsubscribe
-            device.tap((300, 1500))
-            sleep(1)
-
-    except Exception as e:
-        if e == "'NoneType' object is not subscriptable":
-            restart_app(device)
 
     return intervention_data
 
@@ -447,10 +252,11 @@ def Control():
         
 
     
-
+profile = "hadiaskari23"
 
 if __name__ == '__main__':
         args = parse_args()
+        driver = YTShortDriver(use_virtual_display=False, profile_dir='profiles/%s' % profile)
         
         # print("Launching emulator...")
         # device = emulate_new_device(credentials.name)
@@ -458,18 +264,23 @@ if __name__ == '__main__':
 
 
     # try:
-        print("Configuring keyboard...")
+        
         #configure_keyboard(device)
 
+        driver.goto_homepage()
+
+        # wait for user setup
+        input("Start?")
+
         
-        print('Serial', device._Android__device.serial)
-        input("Continue?")
+        print("Training Phase 1...", util.timestamp())
+        training_phase_1(driver, args.q)
 
         print("Training Phase 2...", util.timestamp())
-        training_phase_2_data = training_phase_2(device, args.q)
+        training_phase_2_data = training_phase_2(driver, args.q)
         
         print("Testing Phase 1...", util.timestamp())
-        testing_phase_1_data = testing(device)
+        testing_phase_1_data = testing(driver)
 
         print("Saving...", util.timestamp())
         pd.DataFrame(training_phase_2_data).to_csv(f'training_phase_2/{args.q}--{args.i}--{args.n}_tr_p2.csv', index=False)
@@ -479,34 +290,36 @@ if __name__ == '__main__':
         if args.i == "Not_Interested":
        
             print("Not Interested Only Intervention...", util.timestamp())
-            intervention_data = Not_Interested(device,args.q, args.i)
+            intervention_data = Not_Interested(driver,args.q, args.i)
             pd.DataFrame(intervention_data).to_csv(f'intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
         
         elif args.i == "Unfollow":
             print("Unfollow Only Intervention...", util.timestamp())
-            intervention_data = Unfollow(device,args.q, args.i)
+            intervention_data = Unfollow(driver,args.q, args.i)
             pd.DataFrame(intervention_data).to_csv(f'intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
         elif args.i == "Unfollow_Not_Interested":
             print("Unfollow then Not Interested Intervention...", util.timestamp())
-            intervention_data = Unfollow_Not_Interested(device,args.q, args.i)
+            intervention_data = Unfollow_Not_Interested(driver,args.q, args.i)
             pd.DataFrame(intervention_data).to_csv(f'intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
         elif args.i == "Not_Interested_Unfollow":
             print("Not Interested then Unfollow Intervention...", util.timestamp())
-            intervention_data = Not_Interested_Unfollow(device,args.q, args.i)
+            intervention_data = Not_Interested_Unfollow(driver,args.q, args.i)
             pd.DataFrame(intervention_data).to_csv(f'intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
         elif args.i == "Control":
             print("Control Intervention")
-            intervention_data = Control(device,args.q, args.i)
+            intervention_data = Control(driver,args.q, args.i)
             pd.DataFrame(intervention_data).to_csv(f'intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
         print("Testing Phase 2... ", util.timestamp())
-        testing_phase_2_data = testing(device)
+        testing_phase_2_data = testing(driver)
 
         print("Saving...")
     #     pd.DataFrame(intervention_data).to_csv(f'intervention/{args.q}_{credentials.name}.csv', index=False)
     #     pd.DataFrame(testing_phase_2_data).to_csv(f'testing_phase_2/{args.q}_{credentials.name}.csv', index=False)
         
         pd.DataFrame(testing_phase_2_data).to_csv(f'testing_phase_2/{args.q}--{args.i}--{args.n}_te_p2.csv', index=False)
+
+        driver.close()

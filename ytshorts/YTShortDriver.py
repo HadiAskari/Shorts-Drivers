@@ -127,6 +127,23 @@ class YTShortDriver:
             # confirm unsubscribe
             self.driver.find_element(By.XPATH, '//button[@aria-label="Unsubscribe"]').click()
 
+
+    def subscribe(self, url):
+        self.driver.get(url)
+
+        subscription = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.TAG_NAME, 'ytd-subscribe-button-renderer'))
+        )
+
+        # get all subscription buttons
+        #subscriptions = self.driver.find_elements(By.TAG_NAME, 'ytd-subscribe-button-renderer')
+        # for subscription in subscriptions:
+        # click button
+        subscription.click()
+
+
+
+
     def goto_homepage(self):
         self.driver.get('https://www.youtube.com')
 
