@@ -16,14 +16,20 @@ ENV TZ=America/Los_Angeles
 
 # copy items
 WORKDIR /app
-COPY sockpuppet.py ./
+COPY accounts.json ./
+COPY classifier.py ./
+COPY credentials.json ./
+COPY helpers.py ./
+COPY keywords.json ./
+COPY main.py ./
 COPY requirements.txt ./
-ADD tiktok ./tiktok
-ADD ytshorts ./ytshorts
+COPY util.py ./
+COPY YTShortDriver.py ./
+COPY yt-dlp ./
 
 # Install pre-dependencies
 RUN apt update
-RUN apt install -y wget g++ unzip xvfb firefox-esr
+RUN apt install -y wget g++ unzip xvfb
 
 # install python dependencies
 RUN pip install -r requirements.txt
@@ -31,10 +37,6 @@ RUN pip install -r requirements.txt
 # Install chrome
 RUN wget http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_91.0.4472.101-1_amd64.deb
 RUN apt install -y ./google-chrome-stable_91.0.4472.101-1_amd64.deb
-
-# Download geckodriver
-RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux32.tar.gz
-RUN tar xvf geckodriver-v0.30.0-linux32.tar.gz
 
 # Download chromedriver
 RUN wget https://chromedriver.storage.googleapis.com/91.0.4472.101/chromedriver_linux64.zip

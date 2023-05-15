@@ -1,0 +1,7 @@
+torch==1.13.1
+pandas
+transformers==4.26.1
+selenium==4.9.1
+tqdm==4.65.0
+PyVirtualDisplay==3.0
+undetected-chromedriver==3.1.5.post4

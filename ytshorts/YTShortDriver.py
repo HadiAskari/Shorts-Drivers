@@ -1,4 +1,3 @@
-from socket import timeout
 from selenium.webdriver import Chrome, ChromeOptions, Firefox, FirefoxOptions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -10,7 +9,6 @@ from helpers import Short, ShortUnavailableException
 from pyvirtualdisplay import Display
 from urllib.parse import quote_plus
 import undetected_chromedriver as uc
-from seleniumbase import SB
 
 class YTShortDriver:
 
@@ -151,19 +149,23 @@ class YTShortDriver:
 
         # type in email
         self.driver.find_element(By.XPATH, '//input[@type="email"]').send_keys(username)
-        sleep(2)
+        sleep(3)
 
         # click on next
         self.driver.find_element(By.XPATH, '//span[text()="Next"]').click()
-        sleep(2)
+        sleep(3)
 
         # type in password
         self.driver.find_element(By.XPATH, '//input[@type="password"]').send_keys(password)
-        sleep(2)
+        sleep(3)
 
         # click on next
         self.driver.find_element(By.XPATH, '//span[text()="Next"]').click()
-        sleep(2)
+        sleep(3)
+
+        # click on next
+        try: self.driver.find_element(By.XPATH, '//span[text()="Not now"]').click()
+        except: pass
 
     def goto_homepage(self):
         self.driver.get('https://www.youtube.com')
