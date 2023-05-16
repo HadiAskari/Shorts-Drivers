@@ -1,10 +1,7 @@
 from argparse import ArgumentParser
-from random import choice
 import docker
 from time import sleep
 import os
-from uuid import uuid4
-import json
 import pandas as pd
 
 # change this to your own ID
@@ -36,7 +33,6 @@ def build_image():
     
 def get_mount_volumes():
     # binds "/output" on the container -> "OUTPUT_DIR" actual folder on disk
-    # binds "/args" on the container -> "ARGS_DIR" actual folder on disk
     return { OUTPUT_DIR: { "bind": "/output" } }
 
 def get_container_list(client):
@@ -47,8 +43,8 @@ def get_container_list(client):
 
 def max_containers_reached(client, max_containers):
     try:
-        return len(get_container_list(client)) >= max_containers
-    except:
+        return len(list(get_container_list(client))) >= max_containers
+    except Exception as e:
         return True
 
 def spawn_containers(args):
@@ -68,7 +64,7 @@ def spawn_containers(args):
             print("Spawning container...")
 
             # set outputDir as "/output"
-            command = ['python', 'main.py', '--q', run.q, '--i', run.i, '--n', run.n]
+            command = ['python', 'main.py', '--q', run.q, '--i', run.i, '--n', run.n, '--outputDir', '/output']
 
             # check for running container list
             while max_containers_reached(client, args.max_containers):
@@ -78,8 +74,9 @@ def spawn_containers(args):
             
             # run the container
             try:
-                client.containers.run(IMAGE_NAME, command, volumes=get_mount_volumes(), shm_size='512M', remove=True, user=USERNAME, detach=False)
-            except:
+                client.containers.run(IMAGE_NAME, command, volumes=get_mount_volumes(), shm_size='512M', remove=False, detach=True)
+            except Exception as e:
+                print(e)
                 pass
             
         # increment count of containers

@@ -1,11 +1,11 @@
-from selenium.webdriver import Chrome, ChromeOptions, Firefox, FirefoxOptions
+from selenium.webdriver import ChromeOptions, Firefox, FirefoxOptions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
 from time import sleep
-from helpers import Short, ShortUnavailableException
+from helpers import Short
 from pyvirtualdisplay import Display
 from urllib.parse import quote_plus
 import undetected_chromedriver as uc
@@ -222,7 +222,7 @@ class YTShortDriver:
         if headless:
             options.add_argument('--headless')
 
-        driver = uc.Chrome(options=options, version_main=111)
+        driver = uc.Chrome(options=options, version_main=112, driver_executable_path='./chromedriver')
 
         return driver
 

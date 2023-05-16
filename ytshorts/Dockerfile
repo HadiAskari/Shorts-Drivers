@@ -14,10 +14,23 @@ ENV PATH=/app:$PATH
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/Los_Angeles
 
-# copy items
+# set working directory
 WORKDIR /app
+
+# Install pre-dependencies
+RUN apt update
+RUN apt install -y wget g++ unzip xvfb
+
+# Install chrome
+RUN wget http://mirror.cs.uchicago.edu/google-chrome/pool/main/g/google-chrome-stable/google-chrome-stable_112.0.5615.49-1_amd64.deb
+RUN apt install -y ./google-chrome-stable_112.0.5615.49-1_amd64.deb
+
+# Download chromedriver
+RUN wget https://chromedriver.storage.googleapis.com/112.0.5615.49/chromedriver_linux64.zip
+RUN unzip chromedriver_linux64.zip
+
+# copy items
 COPY accounts.json ./
-COPY classifier.py ./
 COPY credentials.json ./
 COPY helpers.py ./
 COPY keywords.json ./
@@ -27,17 +40,5 @@ COPY util.py ./
 COPY YTShortDriver.py ./
 COPY yt-dlp ./
 
-# Install pre-dependencies
-RUN apt update
-RUN apt install -y wget g++ unzip xvfb
-
 # install python dependencies
 RUN pip install -r requirements.txt
-
-# Install chrome
-RUN wget http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_91.0.4472.101-1_amd64.deb
-RUN apt install -y ./google-chrome-stable_91.0.4472.101-1_amd64.deb
-
-# Download chromedriver
-RUN wget https://chromedriver.storage.googleapis.com/91.0.4472.101/chromedriver_linux64.zip
-RUN unzip chromedriver_linux64.zip

@@ -1,16 +1,13 @@
 from YTShortDriver import YTShortDriver
-import os
 from time import sleep
-from shutil import rmtree
 import json
 from argparse import ArgumentParser
-from random import randint
 from time import sleep
 import util
 import pandas as pd
-import re
 from tqdm.auto import tqdm
 from util import classify
+
 
 
 PARAMETERS = dict(
@@ -254,14 +251,16 @@ if __name__ == '__main__':
         args = parse_args()
 
         util.makedirs(args.outputDir)
-        driver = YTShortDriver(use_virtual_display=False)
+        driver = YTShortDriver(use_virtual_display=True)
 
-        # login_controller(driver, args.n)
+        login_controller(driver, args.n)
 
         driver.goto_homepage()
+
+        driver.save_screenshot(f'{args.outputDir}/screenshots/{args.q}--{args.i}--{args.n}.png')
        
-        # print("Training Phase 1...", util.timestamp())
-        # training_phase_1(driver, args.q)
+        print("Training Phase 1...", util.timestamp())
+        training_phase_1(driver, args.q)
 
         print("Training Phase 2...", util.timestamp())
         training_phase_2_data = training_phase_2(driver, args.q)
