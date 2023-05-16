@@ -1,5 +1,4 @@
 import re
-from selenium.webdriver.common.by import By
 import json
 import subprocess
 
