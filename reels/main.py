@@ -25,6 +25,7 @@ def parse_args():
     args.add_argument('--q', required=True)
     args.add_argument('--i', help='Intervention Type', required=True)
     args.add_argument('--n', help='Account Name Type', required=True)
+    args.add_argument('--outputDir', help='Output directory', required=True)
     return args.parse_args()
 
 def training_phase_1(driver: ReelsDriver, query):
@@ -240,7 +241,7 @@ def login_controller(driver: ReelsDriver, name):
 if __name__ == '__main__':
 
         util.makedirs()
-        args = parse_args()
+        args = parse_args(args.outputDir)
         driver = ReelsDriver(use_virtual_display=True)
 
         login_controller(driver, args.n)
@@ -257,35 +258,35 @@ if __name__ == '__main__':
         testing_phase_1_data = testing(driver)
 
         print("Saving...", util.timestamp())
-        pd.DataFrame(training_phase_2_data).to_csv(f'training_phase_2/{args.q}--{args.i}--{args.n}_tr_p2.csv', index=False)
-        pd.DataFrame(testing_phase_1_data).to_csv(f'testing_phase_1/{args.q}--{args.i}--{args.n}_te_p1.csv', index=False)
+        pd.DataFrame(training_phase_2_data).to_csv(f'{args.outputDir}/training_phase_2/{args.q}--{args.i}--{args.n}_tr_p2.csv', index=False)
+        pd.DataFrame(testing_phase_1_data).to_csv(f'{args.outputDir}/testing_phase_1/{args.q}--{args.i}--{args.n}_te_p1.csv', index=False)
 
 
         if args.i == "Not_Interested":
        
             print("Not Interested Only Intervention...", util.timestamp())
             intervention_data = Not_Interested(driver, args.q, args.i)
-            pd.DataFrame(intervention_data).to_csv(f'intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
+            pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
         
         elif args.i == "Unfollow":
             print("Unfollow Only Intervention...", util.timestamp())
             intervention_data = Unfollow(driver, args.q, args.i)
-            pd.DataFrame(intervention_data).to_csv(f'intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
+            pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
         elif args.i == "Unfollow_Not_Interested":
             print("Unfollow then Not Interested Intervention...", util.timestamp())
             intervention_data = Unfollow_Not_Interested(driver, args.q, args.i)
-            pd.DataFrame(intervention_data).to_csv(f'intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
+            pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
         elif args.i == "Not_Interested_Unfollow":
             print("Not Interested then Unfollow Intervention...", util.timestamp())
             intervention_data = Not_Interested_Unfollow(driver, args.q, args.i)
-            pd.DataFrame(intervention_data).to_csv(f'intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
+            pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
         elif args.i == "Control":
             print("Control Intervention")
             intervention_data = Control()
-            pd.DataFrame(intervention_data).to_csv(f'intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
+            pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
         
         print("Testing Phase 2... ", util.timestamp())
@@ -295,6 +296,6 @@ if __name__ == '__main__':
     #     pd.DataFrame(intervention_data).to_csv(f'intervention/{args.q}_{credentials.name}.csv', index=False)
     #     pd.DataFrame(testing_phase_2_data).to_csv(f'testing_phase_2/{args.q}_{credentials.name}.csv', index=False)
         
-        pd.DataFrame(testing_phase_2_data).to_csv(f'testing_phase_2/{args.q}--{args.i}--{args.n}_te_p2.csv', index=False)
+        pd.DataFrame(testing_phase_2_data).to_csv(f'{args.outputDir}/testing_phase_2/{args.q}--{args.i}--{args.n}_te_p2.csv', index=False)
 
         driver.close()
