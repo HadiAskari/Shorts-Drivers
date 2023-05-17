@@ -2,8 +2,6 @@
 from YTShortDriver import YTShortDriver
 from time import sleep
 import pandas as pd
-from classifier import classify
-
 
 
 driver = YTShortDriver(use_virtual_display=False)
