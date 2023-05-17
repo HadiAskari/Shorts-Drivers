@@ -15,6 +15,7 @@ def parse_args():
     parser.add_argument('--run', action="store_true", help='Run all docker containers')
     parser.add_argument('--simulate', action="store_true", help='Only generate arguments but do not start containers')
     parser.add_argument('--max-containers', default=10, type=int, help="Maximum number of concurrent containers")
+    parser.add_argument('--run-file', required=True, help='Path to file containing run information')
     parser.add_argument('--sleep-duration', default=60, type=int, help="Time to sleep (in seconds) when max containers are reached and before spawning additional containers")
     args = parser.parse_args()
     return args, parser
@@ -55,10 +56,18 @@ def spawn_containers(args):
     count = 0
     
     # load runs file
-    runs = pd.read_csv('runs.csv')
+    runs = pd.read_csv(args.run_file)
+
+    # load completed runs
+    with open('completed_runs.txt') as f:
+        completed_runs = set(f.read().strip().split('\n'))
 
     for run in runs.itertuples():
 
+        # check if not already completed
+        if run.n in completed_runs:
+            continue
+        
         # spawn container if it's not a simulation
         if not args.simulate:
             print("Spawning container...")
@@ -75,8 +84,9 @@ def spawn_containers(args):
             # run the container
             try:
                 client.containers.run(IMAGE_NAME, command, volumes=get_mount_volumes(), shm_size='512M', remove=False, detach=True)
-            except Exception as e:
-                print(e)
+                with open('completed_runs.txt', 'a') as f:
+                    f.write(run.n + '\n')
+            except Exception:
                 pass
             
         # increment count of containers

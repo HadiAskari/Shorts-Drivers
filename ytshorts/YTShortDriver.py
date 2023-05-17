@@ -72,7 +72,6 @@ class YTShortDriver:
 
     def positive_signal(self):
         ancestor = self.driver.find_element(By.XPATH, '//video/ancestor::ytd-reel-video-renderer')
-
         try:
             like_button = ancestor.find_element(By.XPATH, './/ytd-toggle-button-renderer[@id="like-button"]')
             if like_button.find_element(By.TAG_NAME, 'button').get_attribute('aria-pressed') == 'false':
@@ -138,9 +137,10 @@ class YTShortDriver:
         self.driver.find_element(By.XPATH, '//span[text()="Next"]').click()
         sleep(3)
 
-        # click on next
+        # click on not now if asking for address
         try: self.driver.find_element(By.XPATH, '//span[text()="Not now"]').click()
         except: pass
+
 
     def goto_homepage(self):
         self.driver.get('https://www.youtube.com')
