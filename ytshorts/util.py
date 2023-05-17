@@ -6,7 +6,6 @@ import os
 with open('keywords.json') as f:
     query_kw = json.load(f)
 
-
 def timestamp():
     return datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
 
