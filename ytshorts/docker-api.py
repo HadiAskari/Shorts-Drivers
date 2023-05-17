@@ -59,8 +59,10 @@ def spawn_containers(args):
     runs = pd.read_csv(args.run_file)
 
     # load completed runs
-    with open('completed_runs.txt') as f:
-        completed_runs = set(f.read().strip().split('\n'))
+    try: 
+        with open('completed_runs.txt') as f:
+            completed_runs = set(f.read().strip().split('\n'))
+    except: completed_runs = set()
 
     for run in runs.itertuples():
 
