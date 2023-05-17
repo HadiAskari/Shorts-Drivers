@@ -15,6 +15,7 @@ def parse_args():
     parser.add_argument('--run', action="store_true", help='Run all docker containers')
     parser.add_argument('--simulate', action="store_true", help='Only generate arguments but do not start containers')
     parser.add_argument('--max-containers', default=10, type=int, help="Maximum number of concurrent containers")
+    parser.add_argument('--run-file', required=True, help='Path to file containing run information')
     parser.add_argument('--sleep-duration', default=60, type=int, help="Time to sleep (in seconds) when max containers are reached and before spawning additional containers")
     args = parser.parse_args()
     return args, parser
@@ -55,7 +56,7 @@ def spawn_containers(args):
     count = 0
     
     # load runs file
-    runs = pd.read_csv('runs.csv')
+    runs = pd.read_csv(args.run_file)
 
     # load completed runs
     with open('completed_runs.txt') as f:
