@@ -57,8 +57,16 @@ def spawn_containers(args):
     # load runs file
     runs = pd.read_csv('runs.csv')
 
+    # load completed runs
+    with open('completed_runs.txt') as f:
+        completed_runs = set(f.read().strip().split('\n'))
+
     for run in runs.itertuples():
 
+        # check if not already completed
+        if run.n in completed_runs:
+            continue
+        
         # spawn container if it's not a simulation
         if not args.simulate:
             print("Spawning container...")
@@ -75,8 +83,9 @@ def spawn_containers(args):
             # run the container
             try:
                 client.containers.run(IMAGE_NAME, command, volumes=get_mount_volumes(), shm_size='512M', remove=False, detach=True)
-            except Exception as e:
-                print(e)
+                with open('completed_runs.txt', 'a') as f:
+                    f.write(run.n + '\n')
+            except Exception:
                 pass
             
         # increment count of containers
