@@ -9,7 +9,6 @@ from tqdm.auto import tqdm
 from util import classify
 
 
-
 PARAMETERS = dict(
     training_phase_n=10,
     training_phase_sleep=30,
