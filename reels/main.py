@@ -240,13 +240,16 @@ def login_controller(driver: ReelsDriver, name):
 
 if __name__ == '__main__':
 
-        util.makedirs()
-        args = parse_args(args.outputDir)
+        args = parse_args()
+
+        util.makedirs(args.outputDir)
         driver = ReelsDriver(use_virtual_display=True)
 
         login_controller(driver, args.n)
         
-        driver.goto_shorts()
+        driver.goto_homepage()
+
+        driver.save_screenshot(f'{args.outputDir}/screenshots/{args.q}--{args.i}--{args.n}.png')
 
         print("Training Phase 1...", util.timestamp())
         training_phase_1(driver, args.q)
@@ -293,8 +296,6 @@ if __name__ == '__main__':
         testing_phase_2_data = testing(driver)
 
         print("Saving...")
-    #     pd.DataFrame(intervention_data).to_csv(f'intervention/{args.q}_{credentials.name}.csv', index=False)
-    #     pd.DataFrame(testing_phase_2_data).to_csv(f'testing_phase_2/{args.q}_{credentials.name}.csv', index=False)
         
         pd.DataFrame(testing_phase_2_data).to_csv(f'{args.outputDir}/testing_phase_2/{args.q}--{args.i}--{args.n}_te_p2.csv', index=False)
 
