@@ -72,7 +72,7 @@ def spawn_containers(args):
         
         # spawn container if it's not a simulation
         if not args.simulate:
-            print("Spawning container...", end=' ')
+            print("Starting run:", run, 'Container ID:', end=' ')
 
             # set outputDir as "/output"
             command = ['python', 'main.py', '--q', run.q, '--i', run.i, '--n', run.n, '--outputDir', '/output']
