@@ -40,7 +40,7 @@ def training_phase_2(driver: ReelsDriver, query):
     training_phase_2_data = []
 
     for iter in range(PARAMETERS['upper_bound']):
-        print('Iteration:', iter, end='\r')
+        print('Iteration:', iter)
 
         # break if exit satisfied
         if count > PARAMETERS["training_phase_n"]:
@@ -74,7 +74,7 @@ def testing(driver: ReelsDriver):
     testing_phase1_data = []
     count = 0
     for iter in range(PARAMETERS["testing_phase_n"]):
-        print('Iteration:', iter, end='\r')
+        print('Iteration:', iter)
 
         # grab current short
         short = driver.get_current_short()
@@ -101,7 +101,7 @@ def Not_Interested(driver: ReelsDriver,query, intervention):
 
     # for 1000 videos
     for iter in range(PARAMETERS['upper_bound']):
-        print('Iteration:', iter, end='\r')
+        print('Iteration:', iter)
 
         # break if success
         if count > PARAMETERS["intervention_phase_n"]:
@@ -160,7 +160,7 @@ def Unfollow_Not_Interested(driver: ReelsDriver,query, intervention):
 
     # for 1000 videos
     for iter in range(PARAMETERS['upper_bound']):
-        print('Iteration:', iter, end='\r')
+        print('Iteration:', iter)
 
         # break if success
         if count > PARAMETERS["intervention_phase_n"]:
@@ -200,7 +200,7 @@ def Not_Interested_Unfollow(driver: ReelsDriver,query, intervention):
 
     # for 1000 videos
     for iter in range(PARAMETERS['upper_bound']):
-        print('Iteration:', iter, end='\r')
+        print('Iteration:', iter)
 
         # break if success
         if count > PARAMETERS["intervention_phase_n"]:
