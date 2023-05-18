@@ -44,8 +44,6 @@ def training_phase_2(driver: YTShortDriver, query):
 
     for iter in range(PARAMETERS['upper_bound']):
 
-        log('Iteration:', iter)
-
         # break if exit satisfied
         if count > PARAMETERS["training_phase_n"]:
             break
@@ -80,7 +78,6 @@ def testing(driver: YTShortDriver):
     testing_phase1_data = []
     count = 0
     for iter in range(PARAMETERS["testing_phase_n"]):
-        log('Iteration:', iter)
 
         # grab current short
         short = driver.get_current_short()
@@ -223,6 +220,7 @@ def login_controller(driver: YTShortDriver, name):
     except: pass
 
 def log(args, *message):
+    print(message)
     with open(f'{args.outputDir}/logs/{args.q}--{args.i}--{args.n}.logs', 'a') as f:
         for msg in message:
             f.write(str(msg))
@@ -238,50 +236,50 @@ def main(args, driver: YTShortDriver):
 
     driver.save_screenshot(f'{args.outputDir}/screenshots/{args.q}--{args.i}--{args.n}.png')
     
-    log("Training Phase 1...", util.timestamp())
+    log(args, "Training Phase 1...", util.timestamp())
     training_phase_1(driver, args.q)
 
-    log("Training Phase 2...", util.timestamp())
+    log(args, "Training Phase 2...", util.timestamp())
     training_phase_2_data = training_phase_2(driver, args.q)
     
-    log("Testing Phase 1...", util.timestamp())
+    log(args, "Testing Phase 1...", util.timestamp())
     testing_phase_1_data = testing(driver)
 
-    log("Saving...", util.timestamp())
+    log(args, "Saving...", util.timestamp())
     pd.DataFrame(training_phase_2_data).to_csv(f'{args.outputDir}/training_phase_2/{args.q}--{args.i}--{args.n}_tr_p2.csv', index=False)
     pd.DataFrame(testing_phase_1_data).to_csv(f'{args.outputDir}/testing_phase_1/{args.q}--{args.i}--{args.n}_te_p1.csv', index=False)
 
 
     if args.i == "Not_Interested":
     
-        log("Not Interested Only Intervention...", util.timestamp())
+        log(args, "Not Interested Only Intervention...", util.timestamp())
         intervention_data = Not_Interested(driver,args.q, args.i)
         pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
     
     elif args.i == "Unfollow":
-        log("Unfollow Only Intervention...", util.timestamp())
+        log(args, "Unfollow Only Intervention...", util.timestamp())
         intervention_data = Unfollow(driver,args.q, args.i)
         pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
     elif args.i == "Unfollow_Not_Interested":
-        log("Unfollow then Not Interested Intervention...", util.timestamp())
+        log(args, "Unfollow then Not Interested Intervention...", util.timestamp())
         intervention_data = Unfollow_Not_Interested(driver,args.q, args.i)
         pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
     elif args.i == "Not_Interested_Unfollow":
-        log("Not Interested then Unfollow Intervention...", util.timestamp())
+        log(args, "Not Interested then Unfollow Intervention...", util.timestamp())
         intervention_data = Not_Interested_Unfollow(driver,args.q, args.i)
         pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
     elif args.i == "Control":
-        log("Control Intervention")
+        log(args, "Control Intervention")
         intervention_data = Control()
         pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
-    log("Testing Phase 2... ", util.timestamp())
+    log(args, "Testing Phase 2... ", util.timestamp())
     testing_phase_2_data = testing(driver)
 
-    log("Saving...")
+    log(args, "Saving...")
     
     pd.DataFrame(testing_phase_2_data).to_csv(f'{args.outputDir}/testing_phase_2/{args.q}--{args.i}--{args.n}_te_p2.csv', index=False)
 
