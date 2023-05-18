@@ -72,7 +72,7 @@ def spawn_containers(args):
         
         # spawn container if it's not a simulation
         if not args.simulate:
-            print("Spawning container...")
+            print("Spawning container...", end=' ')
 
             # set outputDir as "/output"
             command = ['python', 'main.py', '--q', run.q, '--i', run.i, '--n', run.n, '--outputDir', '/output']
@@ -85,7 +85,8 @@ def spawn_containers(args):
             
             # run the container
             try:
-                client.containers.run(IMAGE_NAME, command, volumes=get_mount_volumes(), shm_size='512M', remove=False, detach=True)
+                container = client.containers.run(IMAGE_NAME, command, volumes=get_mount_volumes(), shm_size='512M', remove=False, detach=True)
+                print(container.id)
                 with open('completed_runs.txt', 'a') as f:
                     f.write(run.n + '\n')
             except Exception:
