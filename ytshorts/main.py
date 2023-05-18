@@ -5,7 +5,6 @@ from argparse import ArgumentParser
 from time import sleep
 import util
 import pandas as pd
-from tqdm.auto import tqdm
 from util import classify
 
 
@@ -28,7 +27,7 @@ def parse_args():
 def training_phase_1(driver: YTShortDriver, query):
     with open('accounts.json') as f:
         json_file = json.load(f)
-        accounts_list=json_file[query]
+        accounts_list = json_file[query]
         for url in accounts_list:
             sleep(2)
             driver.subscribe(url)
@@ -43,7 +42,9 @@ def training_phase_2(driver: YTShortDriver, query):
     # start training
     training_phase_2_data = []
 
-    for iter in tqdm(range(PARAMETERS['upper_bound'])):
+    for iter in range(PARAMETERS['upper_bound']):
+
+        print('Iteration:', iter, end='\r')
 
         # break if exit satisfied
         if count > PARAMETERS["training_phase_n"]:
@@ -81,7 +82,8 @@ def testing(driver: YTShortDriver):
     # start testing
     testing_phase1_data = []
     count = 0
-    for iter in tqdm(range(PARAMETERS["testing_phase_n"])):
+    for iter in range(PARAMETERS["testing_phase_n"]):
+        print('Iteration:', iter, end='\r')
 
         # grab current short
         short = driver.get_current_short()
@@ -110,7 +112,8 @@ def Not_Interested(driver: YTShortDriver,query, intervention):
     count = 0
 
     # for 1000 videos
-    for iter in tqdm(range(PARAMETERS['upper_bound'])):
+    for iter in range(PARAMETERS['upper_bound']):
+        print('Iteration:', iter, end='\r')
 
         # break if success
         if count > PARAMETERS["intervention_phase_n"]:
@@ -167,7 +170,8 @@ def Unfollow_Not_Interested(driver: YTShortDriver,query, intervention):
     count = 0
 
     # for 1000 videos
-    for iter in tqdm(range(PARAMETERS['upper_bound'])):
+    for iter in range(PARAMETERS['upper_bound']):
+        print('Iteration:', iter, end='\r')
 
         # break if success
         if count > PARAMETERS["intervention_phase_n"]:
@@ -189,9 +193,6 @@ def Unfollow_Not_Interested(driver: YTShortDriver,query, intervention):
         # swipe to next video
         driver.next_short()
 
-
-            
-
     return intervention_data
         
 
@@ -207,7 +208,8 @@ def Not_Interested_Unfollow(driver: YTShortDriver,query, intervention):
     count = 0
 
     # for 1000 videos
-    for iter in tqdm(range(PARAMETERS['upper_bound'])):
+    for iter in range(PARAMETERS['upper_bound']):
+        print('Iteration:', iter, end='\r')
 
         # break if success
         if count > PARAMETERS["intervention_phase_n"]:
