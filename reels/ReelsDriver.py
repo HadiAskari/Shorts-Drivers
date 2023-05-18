@@ -1,15 +1,12 @@
-from socket import timeout
-from selenium.webdriver import Chrome, ChromeOptions, Firefox, FirefoxOptions
+from selenium.webdriver import ChromeOptions, Firefox, FirefoxOptions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
 from time import sleep
-from helpers import Short, ShortUnavailableException
+from helpers import Short
 from pyvirtualdisplay import Display
-from urllib.parse import quote_plus
-from selenium_stealth import stealth
 
 class ReelsDriver:
 
@@ -154,28 +151,12 @@ class ReelsDriver:
         options.add_argument('--no-sandbox')
         options.add_argument('--window-size=1920,1080')
 
-        # Chrome is controlled by automated test software
-        options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        options.add_experimental_option('useAutomationExtension', False)
-
-        # avoiding detection
-        options.add_argument('--disable-blink-features=AutomationControlled')
-
         if profile_dir is not None:
             options.add_argument('--user-data-dir=%s' % profile_dir)
         if headless:
             options.add_argument('--headless')
 
-        driver = Chrome(options=options)
-
-        stealth(driver,
-            languages=["en-US", "en"],
-            vendor="Google Inc.",
-            platform="Win32",
-            webgl_vendor="Intel Inc.",
-            renderer="Intel Iris OpenGL Engine",
-            fix_hairline=True,
-        )
+        driver = uc.Chrome(options=options, version_main=112, driver_executable_path='./chromedriver')
 
         return driver
 
