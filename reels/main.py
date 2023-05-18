@@ -40,7 +40,6 @@ def training_phase_2(driver: ReelsDriver, query):
     training_phase_2_data = []
 
     for iter in range(PARAMETERS['upper_bound']):
-        print('Iteration:', iter)
 
         # break if exit satisfied
         if count > PARAMETERS["training_phase_n"]:
@@ -74,7 +73,6 @@ def testing(driver: ReelsDriver):
     testing_phase1_data = []
     count = 0
     for iter in range(PARAMETERS["testing_phase_n"]):
-        print('Iteration:', iter)
 
         # grab current short
         short = driver.get_current_short()
@@ -88,7 +86,6 @@ def testing(driver: ReelsDriver):
 
     return testing_phase1_data
 
-
 def Not_Interested(driver: ReelsDriver,query, intervention):
     #need to change
 
@@ -101,11 +98,9 @@ def Not_Interested(driver: ReelsDriver,query, intervention):
 
     # for 1000 videos
     for iter in range(PARAMETERS['upper_bound']):
-        print('Iteration:', iter)
 
         # break if success
         if count > PARAMETERS["intervention_phase_n"]:
-            print('breaking',count)
             break
         
         # get current short
@@ -118,7 +113,7 @@ def Not_Interested(driver: ReelsDriver,query, intervention):
             # click on like and watch for longer
             driver.negative_signal()
 
-        training_phase_2_data.append(short.metadata)
+        intervention_data.append(short.metadata)
 
         # swipe to next video
         driver.next_short()
@@ -137,34 +132,22 @@ def Unfollow(driver: ReelsDriver,query, intervention):
 
     return intervention_data
 
-
 def Unfollow_Not_Interested(driver: ReelsDriver,query, intervention):
-    #need to change
-
-
-    sleep(2)
- 
-    intervention_data = []
 
     driver.unfollow_all_accounts()
-
-
-    #need to change
-    driver.goto_shorts()
-
-
     sleep(2)
-    
+
+    driver.goto_shorts()
+    sleep(2)
+
     intervention_data = []
     count = 0
 
     # for 1000 videos
     for iter in range(PARAMETERS['upper_bound']):
-        print('Iteration:', iter)
 
         # break if success
         if count > PARAMETERS["intervention_phase_n"]:
-            print('breaking',count)
             break
         
         # get current short
@@ -177,13 +160,10 @@ def Unfollow_Not_Interested(driver: ReelsDriver,query, intervention):
             # click on like and watch for longer
             driver.negative_signal()
 
-        training_phase_2_data.append(short.metadata)
+        intervention_data.append(short.metadata)
 
         # swipe to next video
         driver.next_short()
-
-
-            
 
     return intervention_data
 
@@ -200,11 +180,9 @@ def Not_Interested_Unfollow(driver: ReelsDriver,query, intervention):
 
     # for 1000 videos
     for iter in range(PARAMETERS['upper_bound']):
-        print('Iteration:', iter)
 
         # break if success
         if count > PARAMETERS["intervention_phase_n"]:
-            print('breaking',count)
             break
         
         # get current short
@@ -217,7 +195,7 @@ def Not_Interested_Unfollow(driver: ReelsDriver,query, intervention):
             # click on like and watch for longer
             driver.negative_signal()
 
-        training_phase_2_data.append(short.metadata)
+        intervention_data.append(short.metadata)
 
         # swipe to next video
         driver.next_short()
@@ -237,66 +215,77 @@ def login_controller(driver: ReelsDriver, name):
         accounts_list = json_file[name]
     driver.login(accounts_list[0], accounts_list[1])
 
+def log(args, *message):
+    print(message)
+    with open(f'{args.outputDir}/logs/{args.q}--{args.i}--{args.n}.logs', 'a') as f:
+        for msg in message:
+            f.write(str(msg))
+        f.write('\n')
+
+def main(args, driver):
+    util.makedirs(args.outputDir)
+
+    login_controller(driver, args.n)
+    
+    driver.goto_homepage()
+
+    driver.save_screenshot(f'{args.outputDir}/screenshots/{args.q}--{args.i}--{args.n}.png')
+
+    log(args, "Training Phase 1...", util.timestamp())
+    training_phase_1(driver, args.q)
+
+    log(args, "Training Phase 2...", util.timestamp())
+    training_phase_2_data = training_phase_2(driver, args.q)
+    
+    log(args, "Testing Phase 1...", util.timestamp())
+    testing_phase_1_data = testing(driver)
+
+    log(args, "Saving...", util.timestamp())
+    pd.DataFrame(training_phase_2_data).to_csv(f'{args.outputDir}/training_phase_2/{args.q}--{args.i}--{args.n}_tr_p2.csv', index=False)
+    pd.DataFrame(testing_phase_1_data).to_csv(f'{args.outputDir}/testing_phase_1/{args.q}--{args.i}--{args.n}_te_p1.csv', index=False)
+
+
+    if args.i == "Not_Interested":
+    
+        log(args, "Not Interested Only Intervention...", util.timestamp())
+        intervention_data = Not_Interested(driver, args.q, args.i)
+        pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
+    
+    elif args.i == "Unfollow":
+        log(args, "Unfollow Only Intervention...", util.timestamp())
+        intervention_data = Unfollow(driver, args.q, args.i)
+        pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
+
+    elif args.i == "Unfollow_Not_Interested":
+        log(args, "Unfollow then Not Interested Intervention...", util.timestamp())
+        intervention_data = Unfollow_Not_Interested(driver, args.q, args.i)
+        pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
+
+    elif args.i == "Not_Interested_Unfollow":
+        log(args, "Not Interested then Unfollow Intervention...", util.timestamp())
+        intervention_data = Not_Interested_Unfollow(driver, args.q, args.i)
+        pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
+
+    elif args.i == "Control":
+        log(args, "Control Intervention")
+        intervention_data = Control()
+        pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
+
+    
+    log(args, "Testing Phase 2... ", util.timestamp())
+    testing_phase_2_data = testing(driver)
+
+    log(args, "Saving...")
+    
+    pd.DataFrame(testing_phase_2_data).to_csv(f'{args.outputDir}/testing_phase_2/{args.q}--{args.i}--{args.n}_te_p2.csv', index=False)
+
+    driver.close()
 
 if __name__ == '__main__':
-
-        args = parse_args()
-
-        util.makedirs(args.outputDir)
-        driver = ReelsDriver(use_virtual_display=True)
-
-        login_controller(driver, args.n)
-        
-        driver.goto_homepage()
-
-        driver.save_screenshot(f'{args.outputDir}/screenshots/{args.q}--{args.i}--{args.n}.png')
-
-        print("Training Phase 1...", util.timestamp())
-        training_phase_1(driver, args.q)
-
-        print("Training Phase 2...", util.timestamp())
-        training_phase_2_data = training_phase_2(driver, args.q)
-        
-        print("Testing Phase 1...", util.timestamp())
-        testing_phase_1_data = testing(driver)
-
-        print("Saving...", util.timestamp())
-        pd.DataFrame(training_phase_2_data).to_csv(f'{args.outputDir}/training_phase_2/{args.q}--{args.i}--{args.n}_tr_p2.csv', index=False)
-        pd.DataFrame(testing_phase_1_data).to_csv(f'{args.outputDir}/testing_phase_1/{args.q}--{args.i}--{args.n}_te_p1.csv', index=False)
-
-
-        if args.i == "Not_Interested":
-       
-            print("Not Interested Only Intervention...", util.timestamp())
-            intervention_data = Not_Interested(driver, args.q, args.i)
-            pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
-        
-        elif args.i == "Unfollow":
-            print("Unfollow Only Intervention...", util.timestamp())
-            intervention_data = Unfollow(driver, args.q, args.i)
-            pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
-
-        elif args.i == "Unfollow_Not_Interested":
-            print("Unfollow then Not Interested Intervention...", util.timestamp())
-            intervention_data = Unfollow_Not_Interested(driver, args.q, args.i)
-            pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
-
-        elif args.i == "Not_Interested_Unfollow":
-            print("Not Interested then Unfollow Intervention...", util.timestamp())
-            intervention_data = Not_Interested_Unfollow(driver, args.q, args.i)
-            pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
-
-        elif args.i == "Control":
-            print("Control Intervention")
-            intervention_data = Control()
-            pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
-
-        
-        print("Testing Phase 2... ", util.timestamp())
-        testing_phase_2_data = testing(driver)
-
-        print("Saving...")
-        
-        pd.DataFrame(testing_phase_2_data).to_csv(f'{args.outputDir}/testing_phase_2/{args.q}--{args.i}--{args.n}_te_p2.csv', index=False)
-
-        driver.close()
+    args = parse_args()
+    driver = ReelsDriver(use_virtual_display=True)
+    try:
+        main(args, driver)
+    except Exception as e:
+        log(args, e)
+        driver.save_screenshot(f'{args.outputDir}/screenshots/{args.q}--{args.i}--{args.n}_error.png')
