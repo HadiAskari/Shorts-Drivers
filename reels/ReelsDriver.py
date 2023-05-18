@@ -7,6 +7,7 @@ from selenium.common.exceptions import WebDriverException
 from time import sleep
 from helpers import Short
 from pyvirtualdisplay import Display
+import undetected_chromedriver as uc
 
 class ReelsDriver:
 
