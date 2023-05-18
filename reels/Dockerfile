@@ -38,8 +38,7 @@ COPY keywords.json ./
 COPY main.py ./
 COPY requirements.txt ./
 COPY util.py ./
-COPY YTShortDriver.py ./
-COPY yt-dlp ./
+COPY ReelsDriver.py ./
 
 # install python dependencies
 RUN pip install -r requirements.txt

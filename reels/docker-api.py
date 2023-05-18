@@ -85,7 +85,7 @@ def spawn_containers(args):
             
             # run the container
             try:
-                container = client.containers.run(IMAGE_NAME, command, volumes=get_mount_volumes(), shm_size='512M', remove=False, detach=True)
+                container = client.containers.run(IMAGE_NAME, command, volumes=get_mount_volumes(), shm_size='512M', remove=False, detach=False)
                 print('Container ID', container.id, '\n')
                 with open('completed_runs.txt', 'a') as f:
                     f.write(run.n + '\n')
