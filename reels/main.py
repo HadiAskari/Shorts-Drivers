@@ -26,7 +26,7 @@ def parse_args():
 def training_phase_1(driver: ReelsDriver, query):
     with open('accounts.json') as f:
         json_file = json.load(f)
-        accounts_list=json_file[query]
+        accounts_list = json_file[query]
         for url in accounts_list:
             sleep(2)
             driver.subscribe(url)
