@@ -216,7 +216,7 @@ def login_controller(driver: ReelsDriver, name):
     driver.login(accounts_list[0], accounts_list[1])
 
 def log(args, *message):
-    print(message)
+    print(*message)
     with open(f'{args.outputDir}/logs/{args.q}--{args.i}--{args.n}.logs', 'a') as f:
         for msg in message:
             f.write(str(msg))
