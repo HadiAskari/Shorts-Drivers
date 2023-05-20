@@ -87,7 +87,9 @@ class ReelsDriver:
 
     def unfollow_all_accounts(self):
         self.goto_homepage()
+
         # click on profile button
+        sleep(5)
         menubar = self.driver.find_element(By.XPATH, ".//div[@class='xh8yej3 x1iyjqo2']")
         menubar.find_element(By.XPATH, './/div[text()="Profile"]').click()
 

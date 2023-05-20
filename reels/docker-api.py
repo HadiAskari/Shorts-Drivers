@@ -85,7 +85,7 @@ def spawn_containers(args):
             
             # run the container
             try:
-                client.containers.run(IMAGE_NAME, command, volumes=get_mount_volumes(), shm_size='512M', remove=False, detach=True)
+                client.containers.run(IMAGE_NAME, command, volumes=get_mount_volumes(), shm_size='2G', remove=False, detach=True)
                 with open('completed_runs.txt', 'a') as f:
                     f.write(run.n + '\n')
             except Exception:
