@@ -230,6 +230,10 @@ def main(args, driver: YTShortDriver):
         
     util.makedirs(args.outputDir)
 
+    # clear out log files
+    with open(f'{args.outputDir}/logs/{args.q}--{args.i}--{args.n}.logs', 'w') as f:
+        pass
+
     login_controller(driver, args.n)
 
     driver.goto_homepage()
