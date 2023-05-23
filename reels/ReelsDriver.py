@@ -71,11 +71,12 @@ class ReelsDriver:
         self.driver.find_element(By.TAG_NAME, 'body').click()
 
     def goto_homepage(self):
-        self.driver.get('https://www.instagram.com/reels')
+        return self.goto_shorts()
 
     def goto_shorts(self):
-        self.goto_homepage()
+        self.driver.get('https://www.instagram.com/reels')
         # regain focus
+        sleep(10)
         self.driver.find_element(By.TAG_NAME, 'body').click()
 
     
@@ -159,7 +160,7 @@ class ReelsDriver:
         if headless:
             options.add_argument('--headless')
 
-        driver = uc.Chrome(options=options, version_main=112, driver_executable_path='./chromedriver')
+        driver = uc.Chrome(options=options, version_main=112)#, driver_executable_path='./chromedriver')
 
         return driver
 
