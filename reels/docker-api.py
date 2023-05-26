@@ -13,6 +13,7 @@ def parse_args():
     parser = ArgumentParser()
     parser.add_argument('--build', action="store_true", help='Build docker image')
     parser.add_argument('--run', action="store_true", help='Run all docker containers')
+    parser.add_argument('--loop', action="store_true", help='Loop forever')
     parser.add_argument('--simulate', action="store_true", help='Only generate arguments but do not start containers')
     parser.add_argument('--max-containers', default=10, type=int, help="Maximum number of concurrent containers")
     parser.add_argument('--run-file', required=True, help='Path to file containing run information')
@@ -92,7 +93,7 @@ def spawn_containers(args):
             
             # run the container
             try:
-                client.containers.run(IMAGE_NAME, command, volumes=get_mount_volumes(), shm_size='1G', remove=False, detach=True)
+                client.containers.run(IMAGE_NAME, command, volumes=get_mount_volumes(), shm_size='2G', remove=False, detach=True)
                 sleep(60)
             except Exception:
                 pass
@@ -112,7 +113,11 @@ def main():
         print("Build complete!")
 
     if args.run:
-        spawn_containers(args)
+        while True:
+            spawn_containers(args)
+            if not args.loop:
+                break
+            sleep(60 * 10)
 
     if not args.build and not args.run:
         parser.print_help()
