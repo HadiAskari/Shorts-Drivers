@@ -60,19 +60,26 @@ def spawn_containers(args):
 
     # load completed runs
     try: 
-        with open('completed_runs.txt') as f:
+        with open(os.path.join(OUTPUT_DIR, 'completed_runs.txt')) as f:
             completed_runs = set(f.read().strip().split('\n'))
     except: completed_runs = set()
+   
+    # load runs in progress
+    for container in client.containers.list():
+        for tag in container.image.tags:
+            if IMAGE_NAME in tag:
+                completed_runs.add(container.attrs['Args'][6])
 
     for run in runs.itertuples():
 
         # check if not already completed
         if run.n in completed_runs:
             continue
+
+        print("Starting run with args: [", '--q', run.q, '--i', run.i, '--n', run.n, ']')
         
         # spawn container if it's not a simulation
         if not args.simulate:
-            print("Starting run with args: [", '--q', run.q, '--i', run.i, '--n', run.n, ']')
 
             # set outputDir as "/output"
             command = ['python', 'main.py', '--q', run.q, '--i', run.i, '--n', run.n, '--outputDir', '/output']
@@ -86,8 +93,7 @@ def spawn_containers(args):
             # run the container
             try:
                 client.containers.run(IMAGE_NAME, command, volumes=get_mount_volumes(), shm_size='512M', remove=False, detach=True)
-                with open('completed_runs.txt', 'a') as f:
-                    f.write(run.n + '\n')
+                sleep(60)
             except Exception:
                 pass
             

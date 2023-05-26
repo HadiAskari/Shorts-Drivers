@@ -1,4 +1,4 @@
-from selenium.webdriver import ChromeOptions, Firefox, FirefoxOptions
+from selenium.webdriver import Chrome, ChromeOptions, Firefox, FirefoxOptions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
@@ -7,7 +7,6 @@ from selenium.common.exceptions import WebDriverException
 from time import sleep
 from helpers import Short
 from pyvirtualdisplay import Display
-import undetected_chromedriver as uc
 
 class ReelsDriver:
 
@@ -78,15 +77,13 @@ class ReelsDriver:
         # regain focus
         sleep(10)
         self.driver.find_element(By.TAG_NAME, 'body').click()
-
     
     def subscribe(self, url):
         self.driver.get(url)
         try: self.driver.find_element(By.XPATH, '//div[text()="Follow"]').click()
         except: pass
 
-
-    def unfollow_all_accounts(self):
+    def goto_profile(self):
         self.goto_homepage()
 
         # click on profile button
@@ -97,6 +94,11 @@ class ReelsDriver:
         # wait for profile to load
         WebDriverWait(self.driver, 10).until(EC.title_contains('| Instagram'))
 
+
+    def unfollow_all_accounts(self):
+        # go to profile first
+        self.goto_profile()
+        
         while True:
             # refresh the page
             self.driver.refresh()
@@ -160,7 +162,7 @@ class ReelsDriver:
         if headless:
             options.add_argument('--headless')
 
-        driver = uc.Chrome(options=options, version_main=112)#, driver_executable_path='./chromedriver')
+        driver = Chrome(options=options, executable_path='./chromedriver')
 
         return driver
 
@@ -173,5 +175,5 @@ class ReelsDriver:
         if headless:
             options.add_argument('--headless')
 
-        return Firefox(options=options)
+        return Firefox(options=options, executable_path='./geckodriver')
 

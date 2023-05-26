@@ -6,7 +6,7 @@ from time import sleep
 import util
 import pandas as pd
 from util import classify
-
+import os
 
 PARAMETERS = dict(
     training_phase_n=10,
@@ -236,55 +236,60 @@ def main(args, driver: YTShortDriver):
 
     login_controller(driver, args.n)
 
-    driver.goto_homepage()
-
     driver.save_screenshot(f'{args.outputDir}/screenshots/{args.q}--{args.i}--{args.n}.png')
+
+    driver.goto_homepage()
     
     log(args, "Training Phase 1...", util.timestamp())
     training_phase_1(driver, args.q)
 
     log(args, "Training Phase 2...", util.timestamp())
     training_phase_2_data = training_phase_2(driver, args.q)
+
+    log(args, "Saving...", util.timestamp())
+    pd.DataFrame(training_phase_2_data).to_csv(f'{args.outputDir}/training_phase_2/{args.q}--{args.i}--{args.n}_tr_p2.csv', index=False)
     
     log(args, "Testing Phase 1...", util.timestamp())
     testing_phase_1_data = testing(driver)
 
     log(args, "Saving...", util.timestamp())
-    pd.DataFrame(training_phase_2_data).to_csv(f'{args.outputDir}/training_phase_2/{args.q}--{args.i}--{args.n}_tr_p2.csv', index=False)
     pd.DataFrame(testing_phase_1_data).to_csv(f'{args.outputDir}/testing_phase_1/{args.q}--{args.i}--{args.n}_te_p1.csv', index=False)
 
 
     if args.i == "Not_Interested":
-    
         log(args, "Not Interested Only Intervention...", util.timestamp())
         intervention_data = Not_Interested(driver,args.q, args.i)
+        log(args, "Saving...", util.timestamp())
         pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
     
     elif args.i == "Unfollow":
         log(args, "Unfollow Only Intervention...", util.timestamp())
         intervention_data = Unfollow(driver,args.q, args.i)
+        log(args, "Saving...", util.timestamp())
         pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
     elif args.i == "Unfollow_Not_Interested":
         log(args, "Unfollow then Not Interested Intervention...", util.timestamp())
         intervention_data = Unfollow_Not_Interested(driver,args.q, args.i)
+        log(args, "Saving...", util.timestamp())
         pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
     elif args.i == "Not_Interested_Unfollow":
         log(args, "Not Interested then Unfollow Intervention...", util.timestamp())
         intervention_data = Not_Interested_Unfollow(driver,args.q, args.i)
+        log(args, "Saving...", util.timestamp())
         pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
     elif args.i == "Control":
         log(args, "Control Intervention")
         intervention_data = Control()
+        log(args, "Saving...", util.timestamp())
         pd.DataFrame(intervention_data).to_csv(f'{args.outputDir}/intervention/{args.q}--{args.i}--{args.n}_int.csv', index=False)
 
     log(args, "Testing Phase 2... ", util.timestamp())
     testing_phase_2_data = testing(driver)
 
-    log(args, "Saving...")
-    
+    log(args, "Saving...")    
     pd.DataFrame(testing_phase_2_data).to_csv(f'{args.outputDir}/testing_phase_2/{args.q}--{args.i}--{args.n}_te_p2.csv', index=False)
 
     driver.close()
@@ -294,5 +299,8 @@ if __name__ == '__main__':
     driver = YTShortDriver(use_virtual_display=True)
     try:
         main(args, driver)
+        with open(os.path.join(args.outputDir, 'completed_runs.txt'), 'a') as f:
+            f.write(args.n + '\n')
     except Exception as e:
+        log(args, e)
         driver.save_screenshot(f'{args.outputDir}/screenshots/{args.q}--{args.i}--{args.n}_error.png')
