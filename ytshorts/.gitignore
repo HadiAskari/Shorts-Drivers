@@ -4,4 +4,4 @@ geckodriver.log
 .DS_Store
 profiles
 yt-dlp
-output
+output*
