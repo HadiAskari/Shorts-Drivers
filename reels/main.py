@@ -11,17 +11,20 @@ import os
 PARAMETERS = dict(
     training_phase_n=10,
     training_phase_sleep=30,
-    testing_phase_n=1000,
+    testing_phase_n=100,
     intervention_phase_n=10,
     upper_bound=1000
 )
 
 STATE = dict(
+    testing_phase_0_data=[],
     training_phase_1_data=[],
     training_phase_2_data=[],
     testing_phase_1_data=[],
-    intervention_data=[],
-    testing_phase_2_data=[]
+    intervention_phase1_data=[],
+    testing_phase_2_data=[],
+    intervention_phase2_data=[],
+    testing_phase_3_data=[]
 )
 
 def parse_args():
@@ -120,66 +123,66 @@ def Unfollow(driver: ReelsDriver, query, intervention):
     sleep(2)
     driver.unfollow_all_accounts()
 
-def Unfollow_Not_Interested(driver: ReelsDriver, query, intervention):
+# def Unfollow_Not_Interested(driver: ReelsDriver, query, intervention):
 
-    driver.unfollow_all_accounts()
-    sleep(2)
+#     driver.unfollow_all_accounts()
+#     sleep(2)
 
-    driver.goto_shorts()
-    sleep(2)
+#     driver.goto_shorts()
+#     sleep(2)
     
-    count = len([i for i in STATE['intervention_data'] if i.get('Intervened', False)])
-    start = len(STATE['intervention_data'])
+#     count = len([i for i in STATE['intervention_data'] if i.get('Intervened', False)])
+#     start = len(STATE['intervention_data'])
 
-    for iter in range(start, PARAMETERS['upper_bound']):
+#     for iter in range(start, PARAMETERS['upper_bound']):
 
-        # break if success
-        if count > PARAMETERS["intervention_phase_n"]:
-            break
+#         # break if success
+#         if count > PARAMETERS["intervention_phase_n"]:
+#             break
         
-        # get current short
-        short = driver.get_current_short()
+#         # get current short
+#         short = driver.get_current_short()
         
-        if classify(query, short.metadata['description']):
-            count += 1
-            short.metadata['Intervened'] = True
-            # click on like and watch for longer
-            driver.negative_signal()
+#         if classify(query, short.metadata['description']):
+#             count += 1
+#             short.metadata['Intervened'] = True
+#             # click on like and watch for longer
+#             driver.negative_signal()
 
-        STATE['intervention_data'].append(short.metadata)
+#         STATE['intervention_data'].append(short.metadata)
 
-        # swipe to next video
-        driver.next_short()
+#         # swipe to next video
+#         driver.next_short()
 
-def Not_Interested_Unfollow(driver: ReelsDriver,query, intervention):
+# def Not_Interested_Unfollow(driver: ReelsDriver,query, intervention):
     
-    driver.goto_shorts()
-    sleep(2)
+#     driver.goto_shorts()
+#     sleep(2)
     
-    count = len([i for i in STATE['intervention_data'] if i.get('Intervened', False)])
-    start = len(STATE['intervention_data'])
+#     count = len([i for i in STATE['intervention_data'] if i.get('Intervened', False)])
+#     start = len(STATE['intervention_data'])
 
-    for iter in range(start, PARAMETERS['upper_bound']):
+#     for iter in range(start, PARAMETERS['upper_bound']):
 
-        # break if success
-        if count > PARAMETERS["intervention_phase_n"]:
-            break
+#         # break if success
+#         if count > PARAMETERS["intervention_phase_n"]:
+#             break
         
-        # get current short
-        short = driver.get_current_short()
+#         # get current short
+#         short = driver.get_current_short()
 
-        if classify(query, short.metadata['description']):
-            count += 1
-            short.metadata['Intervened'] = True
-            # click on like and watch for longer
-            driver.negative_signal()
+#         if classify(query, short.metadata['description']):
+#             count += 1
+#             short.metadata['Intervened'] = True
+#             # click on like and watch for longer
+#             driver.negative_signal()
 
-        STATE['intervention_data'].append(short.metadata)
+#         STATE['intervention_data'].append(short.metadata)
 
-        # swipe to next video
-        driver.next_short()
+#         # swipe to next video
+#         driver.next_short()
 
-    driver.unfollow_all_accounts()
+#     driver.unfollow_all_accounts()
 
 def Control():
     pass
@@ -217,6 +220,12 @@ def main(args, driver: ReelsDriver):
     ## take screenshot for login verification
     driver.save_screenshot(f'{args.outputDir}/screenshots/{args.q}--{args.i}--{args.n}__login.png')
 
+
+    #testing phase 0
+    log(args, "Testing Phase 0...", util.timestamp())
+    testing(driver, 0)
+    save_state(args)
+
     # training phase 1
     log(args, "Training Phase 1...", util.timestamp())
     training_phase_1(driver, args.q)
@@ -236,25 +245,25 @@ def main(args, driver: ReelsDriver):
     testing(driver, 1)
     save_state(args)
     
-    # intervention phase
+    # intervention phase 1
     if args.i == "Not_Interested":
-        log(args, "Not Interested Only Intervention...", util.timestamp())
+        log(args, "Not Interested First Intervention...", util.timestamp())
         Not_Interested(driver, args.q, args.i)
         
     elif args.i == "Unfollow":
-        log(args, "Unfollow Only Intervention...", util.timestamp())
+        log(args, "Unfollow First Intervention...", util.timestamp())
         Unfollow(driver, args.q, args.i)
         
-    elif args.i == "Unfollow_Not_Interested":
-        log(args, "Unfollow then Not Interested Intervention...", util.timestamp())
-        Unfollow_Not_Interested(driver, args.q, args.i)
+    # elif args.i == "Unfollow_Not_Interested":
+    #     log(args, "Unfollow then Not Interested Intervention...", util.timestamp())
+    #     Unfollow_Not_Interested(driver, args.q, args.i)
         
-    elif args.i == "Not_Interested_Unfollow":
-        log(args, "Not Interested then Unfollow Intervention...", util.timestamp())
-        Not_Interested_Unfollow(driver, args.q, args.i)
+    # elif args.i == "Not_Interested_Unfollow":
+    #     log(args, "Not Interested then Unfollow Intervention...", util.timestamp())
+    #     Not_Interested_Unfollow(driver, args.q, args.i)
         
     elif args.i == "Control":
-        log(args, "Control Intervention")
+        log(args, "Control Both Intervention")
         Control()
         
     save_state(args)
@@ -262,6 +271,36 @@ def main(args, driver: ReelsDriver):
     # testing phase 2
     log(args, "Testing Phase 2... ", util.timestamp())
     testing(driver, 2)
+    save_state(args)
+
+
+    # intervention phase 2
+    if args.i == "Not_Interested":
+        log(args, "Not Interested First Intervention, Doing Unfollow now...", util.timestamp())
+        Unfollow(driver, args.q, args.i)
+        
+    elif args.i == "Unfollow":
+        log(args, "Unfollow First Intervention, Doing Not Interested now...", util.timestamp())
+        Not_Interested(driver, args.q, args.i)
+        
+    # elif args.i == "Unfollow_Not_Interested":
+    #     log(args, "Unfollow then Not Interested Intervention...", util.timestamp())
+    #     Unfollow_Not_Interested(driver, args.q, args.i)
+        
+    # elif args.i == "Not_Interested_Unfollow":
+    #     log(args, "Not Interested then Unfollow Intervention...", util.timestamp())
+    #     Not_Interested_Unfollow(driver, args.q, args.i)
+        
+    elif args.i == "Control":
+        log(args, "Control Both Intervention")
+        Control()
+        
+    save_state(args)
+
+
+    # testing phase 3
+    log(args, "Testing Phase 3...", util.timestamp())
+    testing(driver, 3)
     save_state(args)
 
     driver.close()
