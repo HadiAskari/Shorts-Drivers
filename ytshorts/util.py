@@ -17,7 +17,7 @@ def classify(query, text):
     return False
 
 def makedirs(outputDir):
-    dirs = ['training_phase_2', 'testing_phase_1', 'intervention', 'testing_phase_2', 'screenshots', 'logs']
+    dirs = ['screenshots', 'logs', 'state']
     for dir in dirs:
         dir = os.path.join(outputDir, dir)
         if not os.path.exists(dir):

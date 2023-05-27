@@ -63,7 +63,7 @@ def training_phase_2(driver: ReelsDriver, query):
             # click on like and watch for longer
             driver.positive_signal()
             sleep(PARAMETERS["training_phase_sleep"])
-    
+
         # append to training data
         STATE['training_phase_2_data'].append(short.metadata)
 
@@ -71,7 +71,6 @@ def training_phase_2(driver: ReelsDriver, query):
         driver.next_short()
 
 def testing(driver: ReelsDriver, phase):
-
     # open shorts page
     driver.goto_shorts()
 
@@ -91,7 +90,6 @@ def testing(driver: ReelsDriver, phase):
 
 def Not_Interested(driver: ReelsDriver, query, intervention):
     driver.goto_shorts()
-    sleep(2)
     
     count = len([i for i in STATE['intervention_data'] if i.get('Intervened', False)])
     start = len(STATE['intervention_data'])
@@ -119,17 +117,17 @@ def Not_Interested(driver: ReelsDriver, query, intervention):
 
 def Unfollow(driver: ReelsDriver, query, intervention):
     driver.goto_shorts()
-    sleep(2)    
+    sleep(2)
     driver.unfollow_all_accounts()
 
-def Unfollow_Not_Interested(driver: ReelsDriver,query, intervention):
+def Unfollow_Not_Interested(driver: ReelsDriver, query, intervention):
 
     driver.unfollow_all_accounts()
     sleep(2)
 
     driver.goto_shorts()
     sleep(2)
-
+    
     count = len([i for i in STATE['intervention_data'] if i.get('Intervened', False)])
     start = len(STATE['intervention_data'])
 
@@ -154,6 +152,7 @@ def Unfollow_Not_Interested(driver: ReelsDriver,query, intervention):
         driver.next_short()
 
 def Not_Interested_Unfollow(driver: ReelsDriver,query, intervention):
+    
     driver.goto_shorts()
     sleep(2)
     
@@ -209,13 +208,13 @@ def load_state(args):
             STATE = json.load(f)
 
 def main(args, driver: ReelsDriver):
+    
     util.makedirs(args.outputDir)
-
+    
     # login
     login_controller(driver, args.n)
     
-    ## take homepage screenshot for login verification
-    driver.goto_homepage()
+    ## take screenshot for login verification
     driver.save_screenshot(f'{args.outputDir}/screenshots/{args.q}--{args.i}--{args.n}__login.png')
 
     # training phase 1
@@ -236,7 +235,7 @@ def main(args, driver: ReelsDriver):
     log(args, "Testing Phase 1...", util.timestamp())
     testing(driver, 1)
     save_state(args)
-
+    
     # intervention phase
     if args.i == "Not_Interested":
         log(args, "Not Interested Only Intervention...", util.timestamp())
