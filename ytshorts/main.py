@@ -230,8 +230,6 @@ def main(args, driver: YTShortDriver):
     testing(driver, 0)
     save_state(args)
     
-    
-    
     # training phase 1
     log(args, "Training Phase 1...", util.timestamp())
     training_phase_1(driver, args.q)
@@ -298,9 +296,6 @@ def main(args, driver: YTShortDriver):
         
     save_state(args)
 
-
-
-
     # testing phase 3
     log(args, "Testing Phase 3...", util.timestamp())
     testing(driver, 3)
@@ -311,7 +306,7 @@ def main(args, driver: YTShortDriver):
 if __name__ == '__main__':
     args = parse_args()
     load_state(args)
-    driver = YTShortDriver(use_virtual_display=True)
+    driver = YTShortDriver(profile_dir=os.path.join(args.outputDir, 'profiles', args.n), use_virtual_display=True)
     try:
         main(args, driver)
         with open(os.path.join(args.outputDir, 'completed_runs.txt'), 'a') as f:

@@ -1,4 +1,4 @@
-from selenium.webdriver import ChromeOptions, Firefox, FirefoxOptions
+from selenium.webdriver import Chrome, ChromeOptions, Firefox, FirefoxOptions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
@@ -119,7 +119,15 @@ class YTShortDriver:
         self.goto_homepage()
 
         # click on signin
-        self.driver.find_element(By.XPATH, '//a[@aria-label="Sign in"]').click()
+        sign_in = self.driver.find_elements(By.XPATH, '//a[@aria-label="Sign in"]')
+        
+        if len(sign_in) == 0:
+            # no sign in button => already signed in
+            print('already signed in')
+            return
+
+        # click sign in button
+        sign_in[0].click()
 
         # type in email
         self.driver.find_element(By.XPATH, '//input[@type="email"]').send_keys(username)
@@ -188,18 +196,13 @@ class YTShortDriver:
             raise ValueError('Unsupported video parameter!')
     
     def __init_chrome(self, profile_dir, headless):
-        options = ChromeOptions()
-        options.add_argument('--no-sandbox')
+        options = uc.ChromeOptions()
         options.add_argument('--window-size=1920,1080')
 
-        if profile_dir is not None:
-            options.add_argument('--user-data-dir=%s' % profile_dir)
         if headless:
-            options.add_argument('--headless')
+            options.headless = headless
 
-        driver = uc.Chrome(options=options, version_main=112, driver_executable_path='./chromedriver')
-
-        return driver
+        return uc.Chrome(options=options, version_main=112, driver_executable_path='./chromedriver', user_data_dir=profile_dir)
 
     def __init_firefox(self, profile_dir, headless):
         options = FirefoxOptions()

@@ -119,12 +119,16 @@ class ReelsDriver:
         return self.driver.save_screenshot(filename)
     
     def login(self, username, password):
-        self.driver.get('https://www.instagram.com/accounts/login/')
-        self.driver.find_element(By.XPATH, '//input[@name="username"]').send_keys(username)
-        self.driver.find_element(By.XPATH, '//input[@type="password"]').send_keys(password)
-        sleep(5)
-        self.driver.find_element(By.XPATH, '//button[@type="submit"]').click()
-        sleep(10)
+        self.driver.get('https://www.instagram.com/accounts/login/')        
+        try:
+            WebDriverWait(self.driver, 10).until(EC.title_contains('Login'))
+            self.driver.find_element(By.XPATH, '//input[@name="username"]').send_keys(username)
+            self.driver.find_element(By.XPATH, '//input[@type="password"]').send_keys(password)
+            sleep(5)
+            self.driver.find_element(By.XPATH, '//button[@type="submit"]').click()
+            sleep(10)
+        except:
+            pass
         
     ## helper methods
     def __log(self, message):

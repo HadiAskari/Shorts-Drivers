@@ -308,7 +308,7 @@ def main(args, driver: ReelsDriver):
 if __name__ == '__main__':
     args = parse_args()
     load_state(args)
-    driver = ReelsDriver(use_virtual_display=True)
+    driver = ReelsDriver(profile_dir=os.path.join(args.outputDir, 'profiles', args.n), use_virtual_display=True)
     try:
         main(args, driver)
         with open(os.path.join(args.outputDir, 'completed_runs.txt'), 'a') as f:
