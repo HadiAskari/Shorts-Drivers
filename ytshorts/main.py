@@ -220,6 +220,9 @@ def main(args, driver: YTShortDriver):
     testing(driver, 3)
     save_state(args)
 
+    # clean up
+    log(args, "Finished!", util.timestamp())
+    save_state(args)
     driver.close()
 
 if __name__ == '__main__':
