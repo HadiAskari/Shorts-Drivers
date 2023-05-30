@@ -21,9 +21,9 @@ STATE = dict(
     training_phase_1_data=[],
     training_phase_2_data=[],
     testing_phase_1_data=[],
-    intervention_phase1_data=[],
+    intervention_phase_1_data=[],
     testing_phase_2_data=[],
-    intervention_phase2_data=[],
+    intervention_phase_2_data=[],
     testing_phase_3_data=[]
 )
 
@@ -92,12 +92,12 @@ def testing(driver: YTShortDriver, phase):
         # get next short
         driver.next_short()
 
-
-def Not_Interested(driver: YTShortDriver, query, intervention):
+def Not_Interested(driver: YTShortDriver, query, intervention, phase):
+    intervention_data = STATE[f'intervention_phase_{phase}_data']
     driver.goto_shorts()
     
-    count = len([i for i in STATE['intervention_data'] if i.get('Intervened', False)])
-    start = len(STATE['intervention_data'])
+    count = len([i for i in intervention_data if i.get('Intervened', False)])
+    start = len(intervention_data)
 
     # for 1000 videos
     for iter in range(start, PARAMETERS['upper_bound']):
@@ -115,80 +115,15 @@ def Not_Interested(driver: YTShortDriver, query, intervention):
             # click on like and watch for longer
             driver.negative_signal()
 
-        STATE['intervention_data'].append(short.metadata)
+        intervention_data.append(short.metadata)
 
         # swipe to next video
         driver.next_short()
 
-
-def Unfollow(driver: YTShortDriver, query, intervention):
+def Unfollow(driver: YTShortDriver, query, intervention, phase):
     driver.goto_shorts()
     sleep(2)
     driver.unfollow_all_accounts()
-
-# def Unfollow_Not_Interested(driver: YTShortDriver, query, intervention):
-
-#     driver.unfollow_all_accounts()
-#     sleep(2)
-
-#     driver.goto_shorts()
-#     sleep(2)
-    
-#     count = len([i for i in STATE['intervention_data'] if i.get('Intervened', False)])
-#     start = len(STATE['intervention_data'])
-
-#     for iter in range(start, PARAMETERS['upper_bound']):
-
-#         # break if success
-#         if count > PARAMETERS["intervention_phase_n"]:
-#             break
-        
-#         # get current short
-#         short = driver.get_current_short()
-        
-#         if classify(query, short.metadata['description']):
-#             count += 1
-#             short.metadata['Intervened'] = True
-#             # click on like and watch for longer
-#             driver.negative_signal()
-
-#         STATE['intervention_data'].append(short.metadata)
-
-#         # swipe to next video
-#         driver.next_short()
-
-# def Not_Interested_Unfollow(driver: YTShortDriver,query, intervention):
-
-#     driver.goto_shorts()
-#     sleep(2)
-    
-#     count = len([i for i in STATE['intervention_data'] if i.get('Intervened', False)])
-#     start = len(STATE['intervention_data'])
-
-#     for iter in range(start, PARAMETERS['upper_bound']):
-
-#         # break if success
-#         if count > PARAMETERS["intervention_phase_n"]:
-#             break
-        
-#         # get current short
-#         short = driver.get_current_short()
-
-#         if classify(query, short.metadata['description']):
-#             count += 1
-#             short.metadata['Intervened'] = True
-#             # click on like and watch for longer
-#             driver.negative_signal()
-
-#         STATE['intervention_data'].append(short.metadata)
-
-#         # swipe to next video
-#         driver.next_short()
-
-#     driver.unfollow_all_accounts()
-
-def Control():
-    pass
 
 def login_controller(driver: YTShortDriver, name):
     with open('credentials.json') as f:
@@ -213,11 +148,19 @@ def load_state(args):
     global STATE
     if os.path.exists(f'{args.outputDir}/state/{args.q}--{args.i}--{args.n}_state.json'):
         with open(f'{args.outputDir}/state/{args.q}--{args.i}--{args.n}_state.json') as f:
-            STATE = json.load(f)
+            saved_state = json.load(f)
+            for key, value in saved_state.items():
+                STATE[key] = value
 
 def main(args, driver: YTShortDriver):
     
     util.makedirs(args.outputDir)
+
+    # pre login check
+    driver.goto_homepage()
+    
+    ## take screenshot for pre login verification
+    driver.save_screenshot(f'{args.outputDir}/screenshots/{args.q}--{args.i}--{args.n}__prelogin.png')
     
     # login
     login_controller(driver, args.n)
@@ -248,23 +191,11 @@ def main(args, driver: YTShortDriver):
     # intervention phase 1
     if args.i == "Not_Interested":
         log(args, "Not Interested First Intervention...", util.timestamp())
-        Not_Interested(driver, args.q, args.i)
+        Not_Interested(driver, args.q, args.i, 1)
         
     elif args.i == "Unfollow":
         log(args, "Unfollow First Intervention...", util.timestamp())
-        Unfollow(driver, args.q, args.i)
-        
-    # elif args.i == "Unfollow_Not_Interested":
-    #     log(args, "Unfollow then Not Interested Intervention...", util.timestamp())
-    #     Unfollow_Not_Interested(driver, args.q, args.i)
-        
-    # elif args.i == "Not_Interested_Unfollow":
-    #     log(args, "Not Interested then Unfollow Intervention...", util.timestamp())
-    #     Not_Interested_Unfollow(driver, args.q, args.i)
-        
-    elif args.i == "Control":
-        log(args, "Control Both Intervention")
-        Control()
+        Unfollow(driver, args.q, args.i, 1)
         
     save_state(args)
 
@@ -276,23 +207,11 @@ def main(args, driver: YTShortDriver):
     # intervention phase 2
     if args.i == "Not_Interested":
         log(args, "Not Interested First Intervention, Doing Unfollow now...", util.timestamp())
-        Unfollow(driver, args.q, args.i)
+        Unfollow(driver, args.q, args.i, 2)
         
     elif args.i == "Unfollow":
         log(args, "Unfollow First Intervention, Doing Not Interested now...", util.timestamp())
-        Not_Interested(driver, args.q, args.i)
-        
-    # elif args.i == "Unfollow_Not_Interested":
-    #     log(args, "Unfollow then Not Interested Intervention...", util.timestamp())
-    #     Unfollow_Not_Interested(driver, args.q, args.i)
-        
-    # elif args.i == "Not_Interested_Unfollow":
-    #     log(args, "Not Interested then Unfollow Intervention...", util.timestamp())
-    #     Not_Interested_Unfollow(driver, args.q, args.i)
-        
-    elif args.i == "Control":
-        log(args, "Control Both Intervention")
-        Control()
+        Not_Interested(driver, args.q, args.i, 2)
         
     save_state(args)
 

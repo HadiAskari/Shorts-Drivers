@@ -68,6 +68,7 @@ class YTShortDriver:
         sleep(0.5)
 
     def get_current_short(self):
+        WebDriverWait(self.driver, 10).until(EC.url_contains('/shorts/'))
         return Short(url=self.driver.current_url)
 
     def positive_signal(self):
@@ -123,7 +124,6 @@ class YTShortDriver:
         
         if len(sign_in) == 0:
             # no sign in button => already signed in
-            print('already signed in')
             return
 
         # click sign in button
