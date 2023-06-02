@@ -61,7 +61,7 @@ def training_phase_2(driver: YTShortDriver, query):
         # get current short
         short = driver.get_current_short()
 
-        if classify(query, short.metadata['description']):
+        if classify(query, f"{short.metadata['title']} {short.metadata['description']}"):
             count += 1
             short.metadata['liked'] = True
             # click on like and watch for longer
@@ -109,7 +109,7 @@ def Not_Interested(driver: YTShortDriver, query, intervention, phase):
         # get current short
         short = driver.get_current_short()
         
-        if classify(query, short.metadata['description']):
+        if classify(query, f"{short.metadata['title']} {short.metadata['description']}"):
             count += 1
             short.metadata['Intervened'] = True
             # click on like and watch for longer
@@ -156,16 +156,16 @@ def main(args, driver: YTShortDriver):
 
     # pre login check
     driver.goto_homepage()
-    
-    ## take screenshot for pre login verification
-    # driver.save_screenshot(f'{args.outputDir}/screenshots/{args.q}--{args.i}--{args.n}__prelogin.png')
-    
+        
     # login
     login_controller(driver, args.n)
     
     ## take screenshot for login verification
     driver.save_screenshot(f'{args.outputDir}/screenshots/{args.q}--{args.i}--{args.n}__login.png')
 
+    # one time goto shorts to clear out any prompts
+    driver.goto_shorts()
+    
     # testing phase 0
     log(args, "Testing Phase 0...", util.timestamp())
     testing(driver, 0)
