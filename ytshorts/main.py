@@ -11,7 +11,7 @@ import os
 PARAMETERS = dict(
     training_phase_n=10,
     training_phase_sleep=30,
-    testing_phase_n=100,
+    testing_phase_n=1000,
     intervention_phase_n=10,
     upper_bound=1000
 )
@@ -126,11 +126,9 @@ def Unfollow(driver: YTShortDriver, query, intervention, phase):
     driver.unfollow_all_accounts()
 
 def login_controller(driver: YTShortDriver, name):
-    with open('credentials.json') as f:
-        json_file = json.load(f)
-        accounts_list = json_file[name]
-
-    try: driver.login(accounts_list[0], accounts_list[1])
+    credentials = pd.read_csv('credentials.csv', delimiter='\t')
+    credential = credentials[credentials['email'].str.startswith(name)].iloc[0]
+    try: driver.login(credential['email'], credential['password'])
     except: pass
 
 def log(args, *message):
@@ -160,7 +158,7 @@ def main(args, driver: YTShortDriver):
     driver.goto_homepage()
     
     ## take screenshot for pre login verification
-    driver.save_screenshot(f'{args.outputDir}/screenshots/{args.q}--{args.i}--{args.n}__prelogin.png')
+    # driver.save_screenshot(f'{args.outputDir}/screenshots/{args.q}--{args.i}--{args.n}__prelogin.png')
     
     # login
     login_controller(driver, args.n)
