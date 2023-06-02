@@ -31,7 +31,7 @@ RUN unzip chromedriver_linux64.zip
 
 # copy items
 COPY accounts.json ./
-COPY credentials.json ./
+COPY credentials.csv ./
 COPY helpers.py ./
 COPY keywords.json ./
 COPY main.py ./
