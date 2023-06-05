@@ -2,5 +2,7 @@
     "problm": ["black lives matter", "social justice", "police brutality", "racial injustice", "systemic racism", "civil rights", "equality", "anti-racism", "activism", "intersectionality"],
     "antiblm": ["Blue Lives Matter", "Thin Blue Line", "Kyle Rittenhouse", "BLM Riots", "Black Lives Matter Riots", "Proud Boys", "Oath keepers", "pro cops", "respect the badge", "All lives matter"],
     "proabortion": ["Reproductive Rights", "Reproductive Justice", "Pro-Choice", "End Patriarchy", "A Handmaid's Tale", "Women's Rights", "Right to choose", "Women's Liberation"],
-    "antiabortion": ["Abortion is murder", "Child Murder", "Pro-life", "God's life", "Unborn life", "Right to life", "Unborn Child", "Heartbeat"]
+    "antiabortion": ["Abortion is murder", "Child Murder", "Pro-life", "God's life", "Unborn life", "Right to life", "Unborn Child", "Heartbeat"],
+    "vax":["1984","Forced vaccinations", "Vaccine mandates", "Plandemic", "China virus", "Vaccine poison", "WHO Fraud", "Vaccine passport", "Unvaccinated", "Vaccine identification"],
+    "election":["Stop the steal", "Dominion voting", "Ballot fraud", "Mail fraud", "Ballot harvesting", "Election interference", "MAGA", "Stop the count", "Ballot Adjudication"]
 }
